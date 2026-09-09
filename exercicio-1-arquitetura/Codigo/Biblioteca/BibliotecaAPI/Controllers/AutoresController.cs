@@ -1,87 +1,102 @@
-﻿using AutoMapper;
-using Core;
-using Core.Service;
+﻿using Application.Autor;
+using AutoMapper;
+using Domain.Autor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+namespace BibliotecaAPI.Controllers;
 
-namespace BibliotecaAPI.Controllers
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class AutoresController : ControllerBase
 {
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AutoresController : ControllerBase
+    private readonly CreateAutorUseCase _createAutorUseCase;
+    private readonly UpdateAutorUseCase _updateAutorUseCase;
+    private readonly DeleteAutorUseCase _deleteAutorUseCase;
+    private readonly GetAutorByIdUseCase _getAutorByIdUseCase;
+    private readonly GetAllAutoresUseCase _getAllAutoresUseCase;
+    private readonly IMapper _mapper;
+
+    public AutoresController(
+        CreateAutorUseCase createAutorUseCase,
+        UpdateAutorUseCase updateAutorUseCase,
+        DeleteAutorUseCase deleteAutorUseCase,
+        GetAutorByIdUseCase getAutorByIdUseCase,
+        GetAllAutoresUseCase getAllAutoresUseCase,
+        IMapper mapper)
     {
-        private readonly IAutorService _autorService;
-        private readonly IMapper _mapper;
+        _createAutorUseCase = createAutorUseCase;
+        _updateAutorUseCase = updateAutorUseCase;
+        _deleteAutorUseCase = deleteAutorUseCase;
+        _getAutorByIdUseCase = getAutorByIdUseCase;
+        _getAllAutoresUseCase = getAllAutoresUseCase;
+        _mapper = mapper;
+    }
 
-        public AutoresController(IAutorService autorService, IMapper mapper)
+    [HttpGet]
+    public ActionResult Get()
+    {
+        var listaAutores = _getAllAutoresUseCase.Execute();
+
+        return Ok(listaAutores);
+    }
+
+    [HttpGet("{id}")]
+    public ActionResult Get(uint id)
+    {
+        var autor = _getAutorByIdUseCase.Execute(id);
+
+        if (autor == null)
+            return NotFound();
+
+        return Ok(autor);
+    }
+
+    [HttpPost]
+    public ActionResult Post([FromBody] AutorViewModel autorModel)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Dados inválidos.");
+
+        var autor = _mapper.Map<AutorEntity>(autorModel);
+
+        _createAutorUseCase.Execute(autor);
+
+        return Ok();
+    }
+
+    [HttpPut("{id}")]
+    public ActionResult Put(uint id, [FromBody] AutorViewModel autorModel)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest("Dados inválidos.");
+
+        var autor = _mapper.Map<AutorEntity>(autorModel);
+
+        autor.Id = id;
+
+        var atualizado = _updateAutorUseCase.Execute(autor);
+
+        if (!atualizado)
         {
-            _autorService = autorService;
-            _mapper = mapper;
+            return NotFound("Autor não encontrado.");
         }
 
-        // GET: api/<AutoresController>
-        [HttpGet]
-        public ActionResult Get()
-        {
-            var listaAutores = _autorService.GetAll();
-            if (listaAutores == null)
-                return NotFound();
-            return Ok(listaAutores);
-        }
+        return Ok();
+    }
 
-        // GET api/<AutoresController>/5
-        [HttpGet("{id}")]
-        public ActionResult Get(uint id)
-        {
-            Autor autor = _autorService.Get(id);
-            if (autor == null)
-                return NotFound();
-            return Ok(autor);
-        }
+    [HttpDelete("{id}")]
+    public ActionResult Delete(uint id)
+    {
+        var autor = _getAutorByIdUseCase.Execute(id);
 
-        // POST api/<AutoresController>
-        [HttpPost]
-        public ActionResult Post([FromBody] AutorViewModel autorModel)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Dados inválidos.");
+        if (autor == null)
+            return NotFound();
 
-            var autor = _mapper.Map<Autor>(autorModel);
-            _autorService.Create(autor);
+        _deleteAutorUseCase.Execute(id);
 
-            return Ok();
-        }
-
-        // PUT api/<AutoresController>/5
-        [HttpPut("{id}")]
-        public ActionResult Put(int id, [FromBody] AutorViewModel autorModel)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest("Dados inválidos.");
-
-            var autor = _mapper.Map<Autor>(autorModel);
-            if (autor == null)
-                return NotFound();
-
-            _autorService.Edit(autor);
-
-            return Ok();
-        }
-
-        // DELETE api/<AutoresController>/5
-        [HttpDelete("{id}")]
-        public ActionResult Delete(uint id)
-        {
-            Autor? autor = _autorService.Get(id);
-            if (autor == null)
-                return NotFound();
-
-            _autorService.Delete(id);
-            return Ok();
-        }
+        return Ok();
     }
 }

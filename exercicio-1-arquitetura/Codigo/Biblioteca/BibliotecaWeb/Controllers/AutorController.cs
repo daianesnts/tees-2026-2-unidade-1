@@ -1,104 +1,196 @@
-﻿using AutoMapper;
-using Core;
+﻿using Application.Autor;
+using AutoMapper;
 using Core.Datatables;
-using Core.Service;
+using Domain.Autor;
+using Domain.Comum;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using Service;
 
 namespace BibliotecaWeb.Controllers
 {
     public class AutorController : Controller
     {
-        private readonly IAutorService autorService;
-        private readonly IMapper mapper;
+        private readonly CreateAutorUseCase _createAutorUseCase;
+        private readonly UpdateAutorUseCase _updateAutorUseCase;
+        private readonly DeleteAutorUseCase _deleteAutorUseCase;
+        private readonly GetAutorByIdUseCase _getAutorByIdUseCase;
+        private readonly GetAllAutoresUseCase _getAllAutoresUseCase;
+        private readonly GetAutoresPageUseCase _getAutoresPageUseCase;
+        private readonly IMapper _mapper;
 
-        public AutorController(IAutorService autorService, IMapper mapper)
+
+        public AutorController(
+            CreateAutorUseCase createAutorUseCase,
+            UpdateAutorUseCase updateAutorUseCase,
+            DeleteAutorUseCase deleteAutorUseCase,
+            GetAutorByIdUseCase getAutorByIdUseCase,
+            GetAllAutoresUseCase getAllAutoresUseCase,
+            GetAutoresPageUseCase getAutoresPageUseCase,
+            IMapper mapper)
         {
-            this.autorService = autorService;
-            this.mapper = mapper;
+            _createAutorUseCase = createAutorUseCase;
+            _updateAutorUseCase = updateAutorUseCase;
+            _deleteAutorUseCase = deleteAutorUseCase;
+            _getAutorByIdUseCase = getAutorByIdUseCase;
+            _getAllAutoresUseCase = getAllAutoresUseCase;
+            _getAutoresPageUseCase = getAutoresPageUseCase;
+
+            _mapper = mapper;
         }
 
-        // GET: AutorController
         public ActionResult Index()
         {
-            var listaAutores = autorService.GetAll();
-            var listaAutorViewModel = mapper.Map<List<AutorViewModel>>(listaAutores);
+            var listaAutores =
+                _getAllAutoresUseCase.Execute();
+
+            var listaAutorViewModel =
+                _mapper.Map<List<AutorViewModel>>(
+                    listaAutores
+                );
+
             return View(listaAutorViewModel);
         }
 
-        // GET: AutorController/Details/5
         public ActionResult Details(uint id)
         {
-            var autor = autorService.Get(id);
-            var autorViewModel = mapper.Map<AutorViewModel>(autor);
+            var autor =
+                _getAutorByIdUseCase.Execute(id);
+
+            if (autor == null)
+            {
+                return NotFound();
+            }
+
+            var autorViewModel =
+                _mapper.Map<AutorViewModel>(autor);
+
             return View(autorViewModel);
+        }
+
+
+        public ActionResult Create()
+        {
+            var autorViewModel =
+                new AutorViewModel
+                {
+                    DataNascimento = DateTime.Now
+                };
+
+            return View(autorViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(
+            AutorViewModel autorViewModel
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(autorViewModel);
+            }
+
+            var autor =
+                _mapper.Map<AutorEntity>(
+                    autorViewModel
+                );
+
+            _createAutorUseCase.Execute(autor);
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public ActionResult Edit(uint id)
+        {
+            var autor =
+                _getAutorByIdUseCase.Execute(id);
+
+            if (autor == null)
+            {
+                return NotFound();
+            }
+
+            var autorViewModel =
+                _mapper.Map<AutorViewModel>(autor);
+
+            return View(autorViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(
+            uint id,
+            AutorViewModel autorViewModel
+        )
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(autorViewModel);
+            }
+
+            var autor =
+                _mapper.Map<AutorEntity>(
+                    autorViewModel
+                );
+
+            autor.Id = id;
+
+            var atualizado =
+                _updateAutorUseCase.Execute(autor);
+
+            if (!atualizado)
+            {
+                return NotFound();
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        public ActionResult Delete(uint id)
+        {
+            var autor =
+                _getAutorByIdUseCase.Execute(id);
+
+            if (autor == null)
+            {
+                return NotFound();
+            }
+
+            var autorViewModel =
+                _mapper.Map<AutorViewModel>(autor);
+
+            return View(autorViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(
+            AutorViewModel autorViewModel
+        )
+        {
+            _deleteAutorUseCase.Execute(
+                autorViewModel.Id
+            );
+
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
         public IActionResult GetDataPage(DatatableRequest request)
         {
-            var response = autorService.GetDataPage(request);
+            var pageRequest = new PageRequest
+            {
+                Start = request.Start,
+                Length = request.Length,
+                Search = request.Search != null &&
+                        request.Search.ContainsKey("value")
+                    ? request.Search["value"]
+                    : null
+            };
+
+            var response = _getAutoresPageUseCase.Execute(pageRequest);
+
             return Json(response);
-        }
-
-        // GET: AutorController/Create
-        public ActionResult Create()
-        {
-            var autorViewModel = new AutorViewModel();
-            autorViewModel.DataNascimento = DateTime.Now;
-            return View(autorViewModel);
-        }
-
-        // POST: AutorController/Create
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(AutorViewModel autorViewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                var autor = mapper.Map<Autor>(autorViewModel);
-                autorService.Create(autor);
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: AutorController/Edit/5
-        public ActionResult Edit(uint id)
-        {
-            var autor = autorService.Get(id);
-            var autorViewModel = mapper.Map<AutorViewModel>(autor);
-            return View(autorViewModel);
-        }
-
-        // POST: AutorController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(uint id, AutorViewModel autorViewModel)
-        {
-            if (ModelState.IsValid)
-            {
-                var autor = mapper.Map<Autor>(autorViewModel);
-                autorService.Edit(autor);
-            }
-            return RedirectToAction(nameof(Index));
-        }
-
-        // GET: AutorController/Delete/5
-        public ActionResult Delete(uint id)
-        {
-            var autor = autorService.Get(id);
-            var autorViewModel = mapper.Map<AutorViewModel>(autor);
-            return View(autorViewModel);
-        }
-
-        // POST: AutorController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(AutorViewModel autorViewModel)
-        {
-            autorService.Delete(autorViewModel.Id);
-            return RedirectToAction(nameof(Index));
         }
     }
 }
