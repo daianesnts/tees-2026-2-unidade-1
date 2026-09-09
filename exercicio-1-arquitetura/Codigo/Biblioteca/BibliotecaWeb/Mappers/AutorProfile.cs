@@ -1,14 +1,20 @@
 ﻿using AutoMapper;
 using Core;
+using Domain.Autor;
 using Models;
 
-namespace Mappers
+namespace Mappers;
+
+public class AutorProfile : Profile
 {
-    public class AutorProfile : Profile
+    public AutorProfile()
     {
-        public AutorProfile()
-        {
-            CreateMap<AutorViewModel, Autor>().ReverseMap();
-        }
+        // Sistema antigo
+        CreateMap<AutorViewModel, Autor>()
+            .ReverseMap();
+
+        // Clean Architecture
+        CreateMap<AutorViewModel, AutorEntity>()
+            .ReverseMap();
     }
 }

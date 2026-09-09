@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core;
+using Domain.Autor;
 using Models;
 
 namespace Mappers
@@ -8,7 +9,13 @@ namespace Mappers
     {
         public AutorProfile()
         {
-            CreateMap<AutorViewModel, Autor>().ReverseMap();
+            // Arquitetura antiga
+            CreateMap<AutorViewModel, Autor>()
+                .ReverseMap();
+
+            // Clean Architecture
+            CreateMap<AutorViewModel, AutorEntity>()
+                .ReverseMap();
         }
     }
 }
