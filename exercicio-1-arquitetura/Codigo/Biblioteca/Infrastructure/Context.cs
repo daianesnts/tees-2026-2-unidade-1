@@ -1,4 +1,5 @@
 using Domain.Autor;
+using Domain.Editora;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure;
@@ -11,4 +12,6 @@ public class Context : DbContext
     }
 
     public DbSet<AutorEntity> Autores { get; set; }
+
+    public DbSet<EditoraEntity> Editoras { get; set; }
 }
