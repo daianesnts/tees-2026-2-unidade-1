@@ -11,10 +11,15 @@ public class CreateItemAcervoUseCase
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public uint Execute(ItemAcervoEntity item)
+    public void Execute(uint item)
     {
-        _itemAcervoRepository.Create(item);
-        return item.Id;
+        var item = _itemAcervoRepository.GetById(id);
+        if (item == null)
+        {
+            throw new Exception("Item não encontrado");
+        }
+        
+        _itemAcervoRepository.Delete(id)
     }
 }
 
