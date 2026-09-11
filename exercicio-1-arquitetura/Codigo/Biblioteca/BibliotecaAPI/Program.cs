@@ -14,6 +14,7 @@ using Service;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Domain.ItemAcervo;
+using Application.ItemAcervo;
 
 namespace BibliotecaAPI
 {
@@ -77,6 +78,12 @@ namespace BibliotecaAPI
             builder.Services.AddScoped<GetAutoresPageUseCase>();
 
             builder.Services.AddScoped<IItemAcervoRepository, ItemAcervorepository>();
+
+            builder.Services.AddScoped<CreateItemAcervoUseCase>();
+            builder.Services.AddScoped<DeleteItemAcervoUseCase>();
+            builder.Services.AddScoped<UpdateItemAcervoUseCase>();
+            builder.Services.AddScoped<GetAllItemAcervoUseCase>();
+            builder.Services.AddScoped<GetItemAcervoByIdUseCase>();
         }
 
         private static void ConfigureAutoMapper(WebApplicationBuilder builder)
