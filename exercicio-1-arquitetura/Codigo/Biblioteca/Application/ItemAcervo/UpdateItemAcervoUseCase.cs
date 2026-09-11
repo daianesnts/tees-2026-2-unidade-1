@@ -2,18 +2,18 @@ using Domain.ItemAcervo;
 
 namespace Application.ItemAcervo;
 
-public class GetAllItemAcervo
+public class UpdateItemAcervoPage
 {
     private readonly IItemAcervoRepository _itemAcervoRepository;
 
-    public UpdateItemAcervoCase(IItemAcervoRepository itemAcervoRepository)
+    public UpdateItemAcervoPage(IItemAcervoRepository itemAcervoRepository)
     {
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public bool Execute(ItemAcervoEntity id)
+    public bool Execute(ItemAcervoEntity item)
     {
-        var itemExistente = _itemAcervoRepository.GetById(item.id);
+        var itemExistente = _itemAcervoRepository.GetById(item.Id);
 
         if(itemExistente == null)
         {
@@ -21,6 +21,6 @@ public class GetAllItemAcervo
         }
 
         _itemAcervoRepository.Update(item);
-        return true;        
+        return true;
     }
 }

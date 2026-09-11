@@ -6,7 +6,7 @@ public class GetAllItemAcervo
 {
     private readonly IItemAcervoRepository _itemAcervoRepository;
 
-    public GetAllItemAcervoUseCase(IItemAcervoRepository itemAcervoRepository)
+    public GetAllItemAcervo(IItemAcervoRepository itemAcervoRepository)
     {
         _itemAcervoRepository = itemAcervoRepository;
     }

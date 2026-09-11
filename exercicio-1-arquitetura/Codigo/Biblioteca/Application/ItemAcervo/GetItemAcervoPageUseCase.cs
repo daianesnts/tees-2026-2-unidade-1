@@ -3,11 +3,11 @@ using Domain.Comum;
 
 namespace Application.ItemAcervo;
 
-public class GetAllItemAcervo
+public class GetAllItemAcervoPage
 {
     private readonly IItemAcervoRepository _itemAcervoRepository;
 
-    public GetAllItemAcervoUseCase(IItemAcervoRepository itemAcervoRepository)
+    public GetAllItemAcervoPage(IItemAcervoRepository itemAcervoRepository)
     {
         _itemAcervoRepository = itemAcervoRepository;
     }
