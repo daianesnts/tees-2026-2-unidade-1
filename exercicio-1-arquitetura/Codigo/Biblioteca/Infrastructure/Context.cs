@@ -1,4 +1,5 @@
 using Domain.Autor;
+using Domain.ItemAcervo;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure;
@@ -11,4 +12,5 @@ public class Context : DbContext
     }
 
     public DbSet<AutorEntity> Autores { get; set; }
+    public DbSet<ItemAcervoEntity> ItemAcervo { get; set; }
 }
