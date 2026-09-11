@@ -2,18 +2,25 @@ using Domain.Editora;
 
 namespace Application.Editora;
 
-public class UseCaseListarEditoras
+public class UseCaseObterEditoraPorId
 {
     private readonly IEditoraRepository _editoraRepository;
 
-    public UseCaseListarEditoras(IEditoraRepository editoraRepository)
+    public UseCaseObterEditoraPorId(IEditoraRepository editoraRepository)
     {
         _editoraRepository = editoraRepository;
     }
 
-    public IEnumerable<EditoraDTO> Execute()
+    public EditoraDTO? Execute(uint id)
     {
-        return _editoraRepository.GetAll().Select(editora => new EditoraDTO
+        var editora = _editoraRepository.GetById(id);
+
+        if (editora == null)
+        {
+            return null;
+        }
+
+        return new EditoraDTO
         {
             Id = editora.Id,
             Nome = editora.Nome,
@@ -23,6 +30,6 @@ public class UseCaseListarEditoras
             Cep = editora.Cep,
             Cidade = editora.Cidade,
             Estado = editora.Estado
-        });
+        };
     }
 }
