@@ -1,3 +1,5 @@
+namespace Domain.Livro;
+
 public class LivroEntity
 {
     public uint Id { get; set; }
