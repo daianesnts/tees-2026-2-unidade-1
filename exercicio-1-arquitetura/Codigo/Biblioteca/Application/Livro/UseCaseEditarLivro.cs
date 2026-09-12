@@ -14,15 +14,18 @@ public class UseCaseEditarLivro
 
     public void Execute(EditarLivroDTO dto)
     {
-        var entity = new LivroEntity
+        var entity = _repository.GetById(dto.Id);
+
+        if(entity != null)
         {
-            Id = dto.Id,
-            Titulo = dto.Titulo,
-            Subtitulo = dto.Subtitulo,
-            Isbn = dto.Isbn,
-            EditoraId = dto.EditoraId
+            entity.Titulo = dto.Titulo;
+            entity.Subtitulo = dto.Subtitulo;
+            entity.Isbn = dto.Isbn;
+            entity.EditoraId = dto.EditoraId;
+
+            _repository.Update(entity);
         };
 
-        _repository.Update(entity);
+        
     }
 }

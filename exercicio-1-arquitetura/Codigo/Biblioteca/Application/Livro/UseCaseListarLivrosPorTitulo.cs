@@ -3,18 +3,18 @@ using Domain.Livro;
 
 namespace Application.Livro;
 
-public class UseCaseListarLivros
+public class UseCaseListarLivrosPorTitulo
 {
     private readonly ILivroRepository _repository;
 
-    public UseCaseListarLivros(ILivroRepository repository)
+    public UseCaseListarLivrosPorTitulo(ILivroRepository repository)
     {
         _repository = repository;
     }
 
-    public IEnumerable<LivroDTO> Execute()
+    public IEnumerable<LivroDTO> ExecutePorTitulo(string titulo)
     {
-        var livros = _repository.GetAll();
+        var livros = _repository.GetByTitulo(titulo);
 
         return livros.Select(l => new LivroDTO
         {
