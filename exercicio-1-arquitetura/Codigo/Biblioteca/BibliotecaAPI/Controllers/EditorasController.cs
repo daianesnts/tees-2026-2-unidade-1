@@ -81,25 +81,20 @@ public class EditorasController : ControllerBase
         if (!atualizado)
             return NotFound("Editora não encontrada para atualização.");
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public ActionResult Delete(uint id)
     {
-        var editora = _useCaseObterEditoraPorId.Execute(id);
-
-        if (editora == null)
-            return NotFound("Editora não encontrada.");
-
         try
         {
             _useCaseExcluirEditora.Execute(id);
-            return Ok();
+            return NoContent();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(ex.Message);
+            return NotFound("Editora não encontrada.");
         }
     }
 }
