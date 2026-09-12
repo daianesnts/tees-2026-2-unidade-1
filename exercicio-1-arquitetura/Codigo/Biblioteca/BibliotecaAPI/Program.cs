@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Domain.ItemAcervo;
 using Application.ItemAcervo;
+using Domain.Editora;
+using Application.Editora;
 
 namespace BibliotecaAPI
 {
@@ -84,6 +86,15 @@ namespace BibliotecaAPI
             builder.Services.AddScoped<UpdateItemAcervoUseCase>();
             builder.Services.AddScoped<GetAllItemAcervoUseCase>();
             builder.Services.AddScoped<GetItemAcervoByIdUseCase>();
+
+            builder.Services.AddScoped<IEditoraRepository, EditoraRepository>();
+
+            builder.Services.AddScoped<UseCaseCriarEditora>();
+            builder.Services.AddScoped<UseCaseEditarEditora>();
+            builder.Services.AddScoped<UseCaseExcluirEditora>();
+            builder.Services.AddScoped<UseCaseListarEditoras>();
+            builder.Services.AddScoped<UseCaseObterEditoraPorId>();
+            builder.Services.AddScoped<UseCaseBuscarEditoraPorNome>();
         }
 
         private static void ConfigureAutoMapper(WebApplicationBuilder builder)
