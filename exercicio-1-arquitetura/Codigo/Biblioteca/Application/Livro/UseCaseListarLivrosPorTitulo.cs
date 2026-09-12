@@ -12,7 +12,7 @@ public class UseCaseListarLivrosPorTitulo
         _repository = repository;
     }
 
-    public IEnumerable<LivroDTO> ExecutePorTitulo(string titulo)
+    public IEnumerable<LivroDTO> Execute(string titulo)
     {
         var livros = _repository.GetByTitulo(titulo);
 
