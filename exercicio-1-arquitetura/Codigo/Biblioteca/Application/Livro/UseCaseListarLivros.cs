@@ -22,7 +22,10 @@ public class UseCaseListarLivros
             Titulo = l.Titulo,
             Subtitulo = l.Subtitulo,
             Isbn = l.Isbn,
-            EditoraId = l.EditoraId
+            EditoraId = l.EditoraId,
+            DataPublicacao = l.DataPublicacao,
+            Resumo = l.Resumo,
+            FotoCapa = l.FotoCapa
         });
     }
 }

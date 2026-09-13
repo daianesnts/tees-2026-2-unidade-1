@@ -22,10 +22,11 @@ public class UseCaseEditarLivro
             entity.Subtitulo = dto.Subtitulo;
             entity.Isbn = dto.Isbn;
             entity.EditoraId = dto.EditoraId;
+            entity.DataPublicacao = dto.DataPublicacao;
+            entity.Resumo = dto.Resumo;
+            entity.FotoCapa = dto.FotoCapa;
 
             _repository.Update(entity);
-        };
-
-        
+        }
     }
 }

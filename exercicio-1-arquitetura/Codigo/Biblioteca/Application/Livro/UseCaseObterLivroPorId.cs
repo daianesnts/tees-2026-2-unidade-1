@@ -26,7 +26,10 @@ public class UseCaseObterLivroPorId
             Titulo = entity.Titulo,
             Subtitulo = entity.Subtitulo,
             Isbn = entity.Isbn,
-            EditoraId = entity.EditoraId
+            EditoraId = entity.EditoraId,
+            DataPublicacao = entity.DataPublicacao,
+            Resumo = entity.Resumo,
+            FotoCapa = entity.FotoCapa
         };
     }
 }

@@ -11,4 +11,10 @@ public class LivroEntity
     public string? Isbn { get; set; }
 
     public uint? EditoraId { get; set; }
+
+    public DateTime? DataPublicacao { get; set; }
+
+    public string? Resumo { get; set; }
+
+    public byte[]? FotoCapa { get; set; }
 }

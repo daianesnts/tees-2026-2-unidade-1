@@ -19,7 +19,10 @@ public class UseCaseCriarLivro
             Titulo = dto.Titulo,
             Subtitulo = dto.Subtitulo,
             Isbn = dto.Isbn,
-            EditoraId = dto.EditoraId
+            EditoraId = dto.EditoraId,
+            DataPublicacao = dto.DataPublicacao,
+            Resumo = dto.Resumo,
+            FotoCapa = dto.FotoCapa
         };
 
         return _repository.Add(entity);
