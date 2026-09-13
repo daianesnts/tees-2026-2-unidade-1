@@ -1,6 +1,5 @@
+using Application.Autor;
 using AutoMapper;
-using Core;
-using Domain.Autor;
 using Models;
 
 namespace Mappers;

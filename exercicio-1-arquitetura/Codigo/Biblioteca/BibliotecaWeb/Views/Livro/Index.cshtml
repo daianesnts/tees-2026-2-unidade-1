@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Core.DTO.LivroDto>
+@model IEnumerable<Models.LivroViewModel>
 
 <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/jquery.dataTables.min.css" />
 
@@ -18,7 +18,7 @@
                 @Html.DisplayNameFor(model => model.Nome)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NomeEditora)
+                @Html.DisplayNameFor(model => model.IdEditora)
             </th>
             <th></th>
         </tr>
@@ -37,7 +37,7 @@
                     @Html.DisplayFor(modelItem => item.Nome)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.NomeEditora)
+                    @Html.DisplayFor(modelItem => item.IdEditora)
                 </td>
                 <td>
                     @Html.ActionLink("Editar", "Edit", new {  id=item.Id }) |

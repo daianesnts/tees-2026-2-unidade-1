@@ -7,11 +7,15 @@ using Domain.Autor;
 
 using Infrastructure;
 
-using Core;
-using Core.Identity.Data;
-using Core.Service;
+using Application.Editora;
+using Application.ItemAcervo;
+using Application.Livro;
 
-using Service;
+using Domain.Editora;
+using Domain.ItemAcervo;
+using Domain.Livro;
+
+using Core.Identity.Data;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
@@ -35,18 +39,8 @@ namespace BibliotecaWeb
                 AppDomain.CurrentDomain.GetAssemblies()
             );
 
-            builder.Services.AddTransient<IAutorService, AutorService>();
-            builder.Services.AddTransient<IEditoraService, EditoraService>();
-            builder.Services.AddTransient<ILivroService, LivroService>();
-            builder.Services.AddTransient<IItemAcervoService, ItemAcervoService>();
 
             builder.Services.AddTransient<IEmailSender, EmailSender>();
-
-            builder.Services.AddDbContext<BibliotecaContext>(
-                options => options.UseInMemoryDatabase(
-                    "BibliotecaDatabase"
-                )
-            );
 
             builder.Services.AddDbContext<Context>(
                 options => options.UseInMemoryDatabase(
