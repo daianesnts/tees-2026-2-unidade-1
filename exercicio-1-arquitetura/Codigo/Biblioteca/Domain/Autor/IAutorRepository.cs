@@ -14,5 +14,7 @@ public interface IAutorRepository
 
     IEnumerable<AutorEntity> GetAll();
 
+    IEnumerable<AutorEntity> GetByName(string nome);
+
     PagedResult<AutorEntity> GetPage(PageRequest request);
 }

@@ -38,15 +38,21 @@ public class AutorRepository : IAutorRepository
 
     public AutorEntity? GetById(uint id)
     {
-        return _context.Autores
-            .AsNoTracking()
-            .FirstOrDefault(autor => autor.Id == id);
+        return _context.Autores.Find(id);
     }
 
     public IEnumerable<AutorEntity> GetAll()
     {
         return _context.Autores
             .AsNoTracking()
+            .ToList();
+    }
+
+    public IEnumerable<AutorEntity> GetByName(string nome)
+    {
+        return _context.Autores
+            .AsNoTracking()
+            .Where(autor => autor.Nome.StartsWith(nome))
             .ToList();
     }
 
