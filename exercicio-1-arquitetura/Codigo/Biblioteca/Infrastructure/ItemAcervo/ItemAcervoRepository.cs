@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure;
 
-public class ItemAcervorepository : IItemAcervoRepository
+public class ItemAcervoRepository : IItemAcervoRepository
 {
     private readonly Context _context;
 
-    public ItemAcervorepository(Context _context)
+    public ItemAcervoRepository(Context _context)
     {
         this._context = _context;
     }

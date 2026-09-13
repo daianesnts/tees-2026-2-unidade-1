@@ -2,27 +2,30 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class CreateAutorUseCase
+public class UseCaseCriarAutor
 {
     private readonly IAutorRepository _autorRepository;
 
-    public CreateAutorUseCase(IAutorRepository autorRepository)
+    public UseCaseCriarAutor(IAutorRepository autorRepository)
     {
         _autorRepository = autorRepository;
     }
 
-    public uint Execute(AutorEntity autor)
+    public uint Execute(AutorDTO dto)
     {
-        ValidateAutor(autor);
-
+        ValidateAutor(dto);
+        var autor = new AutorEntity
+        {
+            Nome = dto.Nome,
+            DataNascimento = dto.DataNascimento
+        };
         _autorRepository.Create(autor);
-
         return autor.Id;
     }
-
-    private static void ValidateAutor(AutorEntity autor)
+    
+    private static void ValidateAutor(AutorDTO dto)
     {
-        if (autor.DataNascimento.Year < 1000)
+        if (dto.DataNascimento.Year < 1000)
         {
             throw new Exception(
                 "O ano de nascimento do autor deve ser maior do que 1000."
