@@ -1,42 +1,62 @@
-﻿using AutoMapper;
-using Core;
-using Core.Service;
-using Microsoft.AspNetCore.Authorization;
+using Application.Autor;
+using Application.Editora;
+using Application.Livro;
+using Application.Livro.DTOs;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models;
-using Service;
 
 namespace BibliotecaWeb.Controllers
 {
-    
     public class LivroController : Controller
     {
-        private readonly ILivroService livroService;
-        private readonly IAutorService autorService;
-        private readonly IEditoraService editoraService;
-        private readonly IMapper mapper;
+        private readonly UseCaseCriarLivro _useCaseCriarLivro;
+        private readonly UseCaseEditarLivro _useCaseEditarLivro;
+        private readonly UseCaseExcluirLivro _useCaseExcluirLivro;
+        private readonly UseCaseObterLivroPorId _useCaseObterLivroPorId;
+        private readonly UseCaseListarLivros _useCaseListarLivros;
+        private readonly UseCaseListarAutores _useCaseListarAutores;
+        private readonly UseCaseListarEditoras _useCaseListarEditoras;
+        private readonly IMapper _mapper;
 
-        public LivroController(ILivroService livroService, IAutorService autorService, IEditoraService editoraService, IMapper mapper)
+        public LivroController(
+            UseCaseCriarLivro useCaseCriarLivro,
+            UseCaseEditarLivro useCaseEditarLivro,
+            UseCaseExcluirLivro useCaseExcluirLivro,
+            UseCaseObterLivroPorId useCaseObterLivroPorId,
+            UseCaseListarLivros useCaseListarLivros,
+            UseCaseListarAutores useCaseListarAutores,
+            UseCaseListarEditoras useCaseListarEditoras,
+            IMapper mapper)
         {
-            this.livroService = livroService;
-            this.autorService = autorService;
-            this.editoraService = editoraService;
-            this.mapper = mapper;
+            _useCaseCriarLivro = useCaseCriarLivro;
+            _useCaseEditarLivro = useCaseEditarLivro;
+            _useCaseExcluirLivro = useCaseExcluirLivro;
+            _useCaseObterLivroPorId = useCaseObterLivroPorId;
+            _useCaseListarLivros = useCaseListarLivros;
+            _useCaseListarAutores = useCaseListarAutores;
+            _useCaseListarEditoras = useCaseListarEditoras;
+            _mapper = mapper;
         }
 
         // GET: LivroController
         public ActionResult Index()
         {
-            var listaLivros = livroService.GetAll();
-            return View(listaLivros);
+            var listaLivros = _useCaseListarLivros.Execute();
+            var listaLivrosModel = _mapper.Map<List<LivroViewModel>>(listaLivros);
+            return View(listaLivrosModel);
         }
 
         // GET: LivroController/Details/5
         public ActionResult Details(uint id)
         {
-            var livro = livroService.Get(id);
-            LivroViewModel livroViewModel = mapper.Map<LivroViewModel>(livro);
+            var livro = _useCaseObterLivroPorId.Execute(id);
+            if (livro == null)
+            {
+                return NotFound();
+            }
+            LivroViewModel livroViewModel = _mapper.Map<LivroViewModel>(livro);
             return View(livroViewModel);
         }
 
@@ -45,8 +65,8 @@ namespace BibliotecaWeb.Controllers
         {
             LivroViewModel livroModel = new();
 
-            IEnumerable<Autor> listaAutores = autorService.GetAll();
-            IEnumerable<Editora> listaEditoras = editoraService.GetAll();
+            var listaAutores = _useCaseListarAutores.Execute();
+            var listaEditoras = _useCaseListarEditoras.Execute();
 
             livroModel.ListaEditoras = new SelectList(listaEditoras, "Id", "Nome", null);
             livroModel.ListaAutores = new SelectList(listaAutores, "Id", "Nome", null);
@@ -60,23 +80,34 @@ namespace BibliotecaWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var livro = mapper.Map<Livro>(livroViewModel);
-                livroService.Create(livro);
+                var dto = _mapper.Map<CriarLivroDTO>(livroViewModel);
+                _useCaseCriarLivro.Execute(dto);
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+
+            var listaAutores = _useCaseListarAutores.Execute();
+            var listaEditoras = _useCaseListarEditoras.Execute();
+            livroViewModel.ListaEditoras = new SelectList(listaEditoras, "Id", "Nome", null);
+            livroViewModel.ListaAutores = new SelectList(listaAutores, "Id", "Nome", null);
+            return View(livroViewModel);
         }
 
         // GET: LivroController/Edit/5
         public ActionResult Edit(uint id)
         {
-            Livro? livro = livroService.Get(id);
-            LivroViewModel livroModel = mapper.Map<LivroViewModel>(livro);
+            var livro = _useCaseObterLivroPorId.Execute(id);
+            if (livro == null)
+            {
+                return NotFound();
+            }
 
-            IEnumerable<Autor> listaAutores = autorService.GetAll();
-            IEnumerable<Editora> listaEditoras = editoraService.GetAll();
+            LivroViewModel livroModel = _mapper.Map<LivroViewModel>(livro);
+
+            var listaAutores = _useCaseListarAutores.Execute();
+            var listaEditoras = _useCaseListarEditoras.Execute();
 
             livroModel.ListaEditoras = new SelectList(listaEditoras, "Id", "Nome",
-                        listaEditoras.FirstOrDefault(e => e.Id.Equals(livro.IdEditora)));
+                        listaEditoras.FirstOrDefault(e => e.Id == livro.EditoraId));
             livroModel.ListaAutores = new SelectList(listaAutores, "Id", "Nome", null);
 
             return View(livroModel);
@@ -89,17 +120,28 @@ namespace BibliotecaWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var livro = mapper.Map<Livro>(livroViewModel);
-                livroService.Edit(livro);
+                livroViewModel.Id = id;
+                var dto = _mapper.Map<EditarLivroDTO>(livroViewModel);
+                _useCaseEditarLivro.Execute(dto);
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+
+            var listaAutores = _useCaseListarAutores.Execute();
+            var listaEditoras = _useCaseListarEditoras.Execute();
+            livroViewModel.ListaEditoras = new SelectList(listaEditoras, "Id", "Nome", null);
+            livroViewModel.ListaAutores = new SelectList(listaAutores, "Id", "Nome", null);
+            return View(livroViewModel);
         }
 
         // GET: LivroController/Delete/5
         public ActionResult Delete(uint id)
         {
-            var livro = livroService.Get(id);
-            LivroViewModel livroViewModel = mapper.Map<LivroViewModel>(livro);
+            var livro = _useCaseObterLivroPorId.Execute(id);
+            if (livro == null)
+            {
+                return NotFound();
+            }
+            LivroViewModel livroViewModel = _mapper.Map<LivroViewModel>(livro);
             return View(livroViewModel);
         }
 
@@ -108,7 +150,7 @@ namespace BibliotecaWeb.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(uint id, LivroViewModel livroViewModel)
         {
-            livroService.Delete(id);
+            _useCaseExcluirLivro.Execute(id);
             return RedirectToAction(nameof(Index));
         }
     }
