@@ -17,6 +17,8 @@ using Domain.ItemAcervo;
 using Application.ItemAcervo;
 using Domain.Editora;
 using Application.Editora;
+using Domain.Livro;
+using Application.Livro;
 
 namespace BibliotecaAPI
 {
@@ -95,6 +97,15 @@ namespace BibliotecaAPI
             builder.Services.AddScoped<UseCaseListarEditoras>();
             builder.Services.AddScoped<UseCaseObterEditoraPorId>();
             builder.Services.AddScoped<UseCaseBuscarEditoraPorNome>();
+          
+            builder.Services.AddScoped<ILivroRepository, LivroRepository>();
+            
+            builder.Services.AddScoped<UseCaseCriarLivro>();
+            builder.Services.AddScoped<UseCaseEditarLivro>();
+            builder.Services.AddScoped<UseCaseExcluirLivro>();
+            builder.Services.AddScoped<UseCaseObterLivroPorId>();
+            builder.Services.AddScoped<UseCaseListarLivros>();
+            builder.Services.AddScoped<UseCaseListarLivrosPorTitulo>();
         }
 
         private static void ConfigureAutoMapper(WebApplicationBuilder builder)

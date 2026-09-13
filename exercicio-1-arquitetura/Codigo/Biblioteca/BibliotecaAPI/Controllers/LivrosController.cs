@@ -1,10 +1,8 @@
-﻿using AutoMapper;
-using Core.Service;
+﻿using Application.Livro;
+using Application.Livro.DTOs;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace BibliotecaAPI.Controllers
 {
@@ -13,54 +11,64 @@ namespace BibliotecaAPI.Controllers
     [ApiController]
     public class LivrosController : ControllerBase
     {
-        private readonly ILivroService livroService;
-        private readonly IAutorService autorService;
-        private readonly IEditoraService editoraService;
-        private readonly IMapper mapper;
+        private readonly UseCaseListarLivros _useCaseListarLivros;
+        private readonly UseCaseObterLivroPorId _useCaseObterLivroPorId;
+        private readonly UseCaseCriarLivro _useCaseCriarLivro;
+        private readonly UseCaseEditarLivro _useCaseEditarLivro;
+        private readonly UseCaseExcluirLivro _useCaseExcluirLivro;
+        private readonly IMapper _mapper;
 
-        public LivrosController(ILivroService livroService, IAutorService autorService, IEditoraService editoraService, IMapper mapper)
+        public LivrosController(UseCaseListarLivros useCaseListarLivros, UseCaseObterLivroPorId useCaseObterLivroPorId,UseCaseCriarLivro useCaseCriarLivro,UseCaseEditarLivro useCaseEditarLivro,UseCaseExcluirLivro useCaseExcluirLivro,IMapper mapper)
         {
-            this.livroService = livroService;
-            this.autorService = autorService;
-            this.editoraService = editoraService;
-            this.mapper = mapper;
+            _useCaseListarLivros = useCaseListarLivros;
+            _useCaseObterLivroPorId = useCaseObterLivroPorId;
+            _useCaseCriarLivro = useCaseCriarLivro;
+            _useCaseEditarLivro = useCaseEditarLivro;
+            _useCaseExcluirLivro = useCaseExcluirLivro;
+            _mapper = mapper;
         }
 
-        // GET: api/<LivrosController>
+        // GET: api/Livros
         [HttpGet]
         public ActionResult Get()
         {
-            var listaLivros = livroService.GetAll();
+            var listaLivros = _useCaseListarLivros.Execute();
             return Ok(listaLivros);
         }
 
-        // GET api/<LivrosController>/5
+        // GET api/Livros/5
         [HttpGet("{id}")]
         public ActionResult Get(uint id)
         {
-            var livro = livroService.Get(id);
+            var livro = _useCaseObterLivroPorId.Execute(id);
             if (livro == null)
                 return NotFound("Livro não encontrado");
-            LivroViewModel livroViewModel = mapper.Map<LivroViewModel>(livro);
-            return Ok(livroViewModel);
+
+            return Ok(livro);
         }
 
-        // POST api/<LivrosController>
+        // POST api/Livros
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult Post([FromBody] CriarLivroDTO dto)
         {
+            _useCaseCriarLivro.Execute(dto);
+            return Ok();
         }
 
-        // PUT api/<LivrosController>/5
+        // PUT api/Livros/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(uint id, [FromBody] EditarLivroDTO dto)
         {
+            _useCaseEditarLivro.Execute(dto);
+            return NoContent(); 
         }
 
-        // DELETE api/<LivrosController>/5
+        // DELETE api/Livros/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public ActionResult Delete(uint id)
         {
+            _useCaseExcluirLivro.Execute(id);
+            return NoContent(); 
         }
     }
 }
