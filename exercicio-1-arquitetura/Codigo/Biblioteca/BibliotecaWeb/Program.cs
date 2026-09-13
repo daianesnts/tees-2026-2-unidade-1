@@ -60,12 +60,37 @@ namespace BibliotecaWeb
             >();
 
 
+            builder.Services.AddScoped<IAutorRepository, AutorRepository>();
+            builder.Services.AddScoped<IEditoraRepository, EditoraRepository>();
+            builder.Services.AddScoped<IItemAcervoRepository, ItemAcervoRepository>();
+            builder.Services.AddScoped<ILivroRepository, LivroRepository>();
+
             builder.Services.AddScoped<UseCaseCriarAutor>();
             builder.Services.AddScoped<UseCaseEditarAutor>();
             builder.Services.AddScoped<UseCaseExcluirAutor>();
             builder.Services.AddScoped<UseCaseObterAutorPorId>();
             builder.Services.AddScoped<UseCaseListarAutores>();
             builder.Services.AddScoped<GetAutoresPageUseCase>();
+
+            builder.Services.AddScoped<UseCaseCriarEditora>();
+            builder.Services.AddScoped<UseCaseEditarEditora>();
+            builder.Services.AddScoped<UseCaseExcluirEditora>();
+            builder.Services.AddScoped<UseCaseListarEditoras>();
+            builder.Services.AddScoped<UseCaseObterEditoraPorId>();
+            builder.Services.AddScoped<UseCaseBuscarEditoraPorNome>();
+
+            builder.Services.AddScoped<UseCaseCriarItemAcervo>();
+            builder.Services.AddScoped<UseCaseEditarItemAcervo>();
+            builder.Services.AddScoped<UseCaseExcluirItemAcervo>();
+            builder.Services.AddScoped<UseCaseListarItemAcervo>();
+            builder.Services.AddScoped<UseCaseObterItemAcervoPorId>();
+
+            builder.Services.AddScoped<UseCaseCriarLivro>();
+            builder.Services.AddScoped<UseCaseEditarLivro>();
+            builder.Services.AddScoped<UseCaseExcluirLivro>();
+            builder.Services.AddScoped<UseCaseListarLivros>();
+            builder.Services.AddScoped<UseCaseObterLivroPorId>();
+            builder.Services.AddScoped<UseCaseListarLivrosPorTitulo>();
 
 
             builder.Services.AddDbContext<IdentityContext>(
