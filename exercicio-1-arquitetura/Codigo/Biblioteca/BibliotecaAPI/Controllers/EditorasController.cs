@@ -1,43 +1,100 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Application.Editora;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+namespace BibliotecaAPI.Controllers;
 
-namespace BibliotecaAPI.Controllers
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class EditorasController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class EditorasController : ControllerBase
+    private readonly UseCaseCriarEditora _useCaseCriarEditora;
+    private readonly UseCaseEditarEditora _useCaseEditarEditora;
+    private readonly UseCaseExcluirEditora _useCaseExcluirEditora;
+    private readonly UseCaseListarEditoras _useCaseListarEditoras;
+    private readonly UseCaseObterEditoraPorId _useCaseObterEditoraPorId;
+    private readonly UseCaseBuscarEditoraPorNome _useCaseBuscarEditoraPorNome;
+
+    public EditorasController(
+        UseCaseCriarEditora useCaseCriarEditora,
+        UseCaseEditarEditora useCaseEditarEditora,
+        UseCaseExcluirEditora useCaseExcluirEditora,
+        UseCaseListarEditoras useCaseListarEditoras,
+        UseCaseObterEditoraPorId useCaseObterEditoraPorId,
+        UseCaseBuscarEditoraPorNome useCaseBuscarEditoraPorNome)
     {
-        // GET: api/<EditorasController>
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
+        _useCaseCriarEditora = useCaseCriarEditora;
+        _useCaseEditarEditora = useCaseEditarEditora;
+        _useCaseExcluirEditora = useCaseExcluirEditora;
+        _useCaseListarEditoras = useCaseListarEditoras;
+        _useCaseObterEditoraPorId = useCaseObterEditoraPorId;
+        _useCaseBuscarEditoraPorNome = useCaseBuscarEditoraPorNome;
+    }
 
-        // GET api/<EditorasController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
-        {
-            return "value";
-        }
+    [HttpGet]
+    public ActionResult Get()
+    {
+        var editoras = _useCaseListarEditoras.Execute();
+        return Ok(editoras);
+    }
 
-        // POST api/<EditorasController>
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
+    [HttpGet("{id}")]
+    public ActionResult Get(uint id)
+    {
+        var editora = _useCaseObterEditoraPorId.Execute(id);
 
-        // PUT api/<EditorasController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        if (editora == null)
+            return NotFound("Editora não encontrada.");
 
-        // DELETE api/<EditorasController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        return Ok(editora);
+    }
+
+    [HttpGet("buscar/{nome}")]
+    public ActionResult BuscarPorNome(string nome)
+    {
+        var editoras = _useCaseBuscarEditoraPorNome.Execute(nome);
+        return Ok(editoras);
+    }
+
+    [HttpPost]
+    public ActionResult Post([FromBody] CriarEditoraDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        var id = _useCaseCriarEditora.Execute(dto);
+        return CreatedAtAction(nameof(Get), new { id }, dto);
+    }
+
+    [HttpPut("{id}")]
+    public ActionResult Put(uint id, [FromBody] AtualizarEditoraDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+
+        if (id != dto.Id)
+            return BadRequest("O ID informado na rota não corresponde ao ID da editora.");
+
+        var atualizado = _useCaseEditarEditora.Execute(dto);
+
+        if (!atualizado)
+            return NotFound("Editora não encontrada para atualização.");
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public ActionResult Delete(uint id)
+    {
+        try
         {
+            _useCaseExcluirEditora.Execute(id);
+            return NoContent();
+        }
+        catch (Exception)
+        {
+            return NotFound("Editora não encontrada.");
         }
     }
 }
