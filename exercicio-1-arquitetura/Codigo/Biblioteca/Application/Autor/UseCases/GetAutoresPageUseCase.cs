@@ -3,7 +3,7 @@ using Domain.Comum;
 
 namespace Application.Autor;
 
-public class GetAutoresPageUseCase
+public class GetAutoresPageUseCase : IGetAutoresPage
 {
     private readonly IAutorRepository _autorRepository;
 

@@ -1,4 +1,4 @@
-using Application.Autor;
+﻿using Application.Autor;
 using AutoMapper;
 using Core.Datatables;
 using Domain.Autor;
@@ -10,30 +10,30 @@ namespace BibliotecaWeb.Controllers
 {
     public class AutorController : Controller
     {
-        private readonly UseCaseCriarAutor _UseCaseCriarAutor;
-        private readonly UseCaseEditarAutor _UseCaseEditarAutor;
-        private readonly UseCaseExcluirAutor _UseCaseExcluirAutor;
-        private readonly UseCaseObterAutorPorId _UseCaseObterAutorPorId;
-        private readonly UseCaseListarAutores _UseCaseListarAutores;
-        private readonly GetAutoresPageUseCase _getAutoresPageUseCase;
+        private readonly ICriarAutor _criarAutor;
+        private readonly IEditarAutor _editarAutor;
+        private readonly IExcluirAutor _excluirAutor;
+        private readonly IObterAutorPorId _obterAutorPorId;
+        private readonly IListarAutores _listarAutores;
+        private readonly IGetAutoresPage _getAutoresPage;
         private readonly IMapper _mapper;
 
 
         public AutorController(
-            UseCaseCriarAutor UseCaseCriarAutor,
-            UseCaseEditarAutor UseCaseEditarAutor,
-            UseCaseExcluirAutor UseCaseExcluirAutor,
-            UseCaseObterAutorPorId UseCaseObterAutorPorId,
-            UseCaseListarAutores UseCaseListarAutores,
-            GetAutoresPageUseCase getAutoresPageUseCase,
+            ICriarAutor criarAutor,
+            IEditarAutor editarAutor,
+            IExcluirAutor excluirAutor,
+            IObterAutorPorId obterAutorPorId,
+            IListarAutores listarAutores,
+            IGetAutoresPage getAutoresPage,
             IMapper mapper)
         {
-            _UseCaseCriarAutor = UseCaseCriarAutor;
-            _UseCaseEditarAutor = UseCaseEditarAutor;
-            _UseCaseExcluirAutor = UseCaseExcluirAutor;
-            _UseCaseObterAutorPorId = UseCaseObterAutorPorId;
-            _UseCaseListarAutores = UseCaseListarAutores;
-            _getAutoresPageUseCase = getAutoresPageUseCase;
+            _criarAutor = criarAutor;
+            _editarAutor = editarAutor;
+            _excluirAutor = excluirAutor;
+            _obterAutorPorId = obterAutorPorId;
+            _listarAutores = listarAutores;
+            _getAutoresPage = getAutoresPage;
 
             _mapper = mapper;
         }
@@ -41,7 +41,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Index()
         {
             var listaAutores =
-                _UseCaseListarAutores.Execute();
+                _listarAutores.Execute();
 
             var listaAutorViewModel =
                 _mapper.Map<List<AutorViewModel>>(
@@ -54,7 +54,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Details(uint id)
         {
             var autor =
-                _UseCaseObterAutorPorId.Execute(id);
+                _obterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -95,7 +95,7 @@ namespace BibliotecaWeb.Controllers
                     autorViewModel
                 );
 
-            _UseCaseCriarAutor.Execute(autor);
+            _criarAutor.Execute(autor);
 
             return RedirectToAction(nameof(Index));
         }
@@ -103,7 +103,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Edit(uint id)
         {
             var autor =
-                _UseCaseObterAutorPorId.Execute(id);
+                _obterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -136,7 +136,7 @@ namespace BibliotecaWeb.Controllers
             autor.Id = id;
 
             var atualizado =
-                _UseCaseEditarAutor.Execute(autor);
+                _editarAutor.Execute(autor);
 
             if (!atualizado)
             {
@@ -149,7 +149,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Delete(uint id)
         {
             var autor =
-                _UseCaseObterAutorPorId.Execute(id);
+                _obterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -168,7 +168,7 @@ namespace BibliotecaWeb.Controllers
             AutorViewModel autorViewModel
         )
         {
-            _UseCaseExcluirAutor.Execute(
+            _excluirAutor.Execute(
                 autorViewModel.Id
             );
 
@@ -188,7 +188,7 @@ namespace BibliotecaWeb.Controllers
                     : null
             };
 
-            var response = _getAutoresPageUseCase.Execute(pageRequest);
+            var response = _getAutoresPage.Execute(pageRequest);
 
             return Json(response);
         }

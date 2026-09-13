@@ -2,29 +2,25 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class UseCaseEditarAutor
+public class UseCaseCriarAutor : ICriarAutor
 {
     private readonly IAutorRepository _autorRepository;
 
-    public UseCaseEditarAutor(
-        IAutorRepository autorRepository
-    )
+    public UseCaseCriarAutor(IAutorRepository autorRepository)
     {
         _autorRepository = autorRepository;
     }
 
-    public bool Execute(AutorDTO dto)
+    public uint Execute(AutorDTO dto)
     {
-        var autorExistente = _autorRepository.GetById(dto.Id);
-        if (autorExistente == null)
-        {
-            return false;
-        }
         ValidateAutor(dto);
-        autorExistente.Nome = dto.Nome;
-        autorExistente.DataNascimento = dto.DataNascimento;
-        _autorRepository.Update(autorExistente);
-        return true;
+        var autor = new AutorEntity
+        {
+            Nome = dto.Nome,
+            DataNascimento = dto.DataNascimento
+        };
+        _autorRepository.Create(autor);
+        return autor.Id;
     }
     
     private static void ValidateAutor(AutorDTO dto)

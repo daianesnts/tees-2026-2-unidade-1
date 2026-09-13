@@ -2,7 +2,7 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class UseCaseExcluirAutor
+public class UseCaseExcluirAutor : IExcluirAutor
 {
     private readonly IAutorRepository _autorRepository;
 

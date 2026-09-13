@@ -9,37 +9,37 @@ namespace BibliotecaAPI.Controllers;
 [ApiController]
 public class AutoresController : ControllerBase
 {
-    private readonly UseCaseCriarAutor _useCaseCriarAutor;
-    private readonly UseCaseEditarAutor _useCaseEditarAutor;
-    private readonly UseCaseExcluirAutor _useCaseExcluirAutor;
-    private readonly UseCaseObterAutorPorId _useCaseObterAutorPorId;
-    private readonly UseCaseListarAutores _useCaseListarAutores;
+    private readonly ICriarAutor _criarAutor;
+    private readonly IEditarAutor _editarAutor;
+    private readonly IExcluirAutor _excluirAutor;
+    private readonly IObterAutorPorId _obterAutorPorId;
+    private readonly IListarAutores _listarAutores;
 
     public AutoresController(
-        UseCaseCriarAutor useCaseCriarAutor,
-        UseCaseEditarAutor useCaseEditarAutor,
-        UseCaseExcluirAutor useCaseExcluirAutor,
-        UseCaseObterAutorPorId useCaseObterAutorPorId,
-        UseCaseListarAutores useCaseListarAutores)
+        ICriarAutor criarAutor,
+        IEditarAutor editarAutor,
+        IExcluirAutor excluirAutor,
+        IObterAutorPorId obterAutorPorId,
+        IListarAutores listarAutores)
     {
-        _useCaseCriarAutor = useCaseCriarAutor;
-        _useCaseEditarAutor = useCaseEditarAutor;
-        _useCaseExcluirAutor = useCaseExcluirAutor;
-        _useCaseObterAutorPorId = useCaseObterAutorPorId;
-        _useCaseListarAutores = useCaseListarAutores;
+        _criarAutor = criarAutor;
+        _editarAutor = editarAutor;
+        _excluirAutor = excluirAutor;
+        _obterAutorPorId = obterAutorPorId;
+        _listarAutores = listarAutores;
     }
 
     [HttpGet]
     public ActionResult Get()
     {
-        var listaAutores = _useCaseListarAutores.Execute();
+        var listaAutores = _listarAutores.Execute();
         return Ok(listaAutores);
     }
 
     [HttpGet("{id}")]
     public ActionResult Get(uint id)
     {
-        var autor = _useCaseObterAutorPorId.Execute(id);
+        var autor = _obterAutorPorId.Execute(id);
 
         if (autor == null)
             return NotFound();
@@ -50,7 +50,7 @@ public class AutoresController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] AutorDTO dto)
     {
-        var id = _useCaseCriarAutor.Execute(dto);
+        var id = _criarAutor.Execute(dto);
 
         return CreatedAtAction(nameof(Get), new { id }, dto);
     }
@@ -60,7 +60,7 @@ public class AutoresController : ControllerBase
     {
         dto.Id = id;
 
-        var atualizado = _useCaseEditarAutor.Execute(dto);
+        var atualizado = _editarAutor.Execute(dto);
 
         if (!atualizado)
         {
@@ -73,12 +73,12 @@ public class AutoresController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult Delete(uint id)
     {
-        var autor = _useCaseObterAutorPorId.Execute(id);
+        var autor = _obterAutorPorId.Execute(id);
 
         if (autor == null)
             return NotFound("Autor não encontrado.");
 
-        _useCaseExcluirAutor.Execute(id);
+        _excluirAutor.Execute(id);
 
         return NoContent();
     }

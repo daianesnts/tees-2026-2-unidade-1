@@ -2,7 +2,7 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class UseCaseObterAutorPorId
+public class UseCaseObterAutorPorId : IObterAutorPorId
 {
     private readonly IAutorRepository _autorRepository;
 

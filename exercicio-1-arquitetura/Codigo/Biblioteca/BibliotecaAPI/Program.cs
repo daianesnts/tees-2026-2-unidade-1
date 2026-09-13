@@ -59,12 +59,12 @@ namespace BibliotecaAPI
 
             builder.Services.AddScoped<IAutorRepository, AutorRepository>();
 
-            builder.Services.AddScoped<UseCaseCriarAutor>();
-            builder.Services.AddScoped<UseCaseEditarAutor>();
-            builder.Services.AddScoped<UseCaseExcluirAutor>();
-            builder.Services.AddScoped<UseCaseObterAutorPorId>();
-            builder.Services.AddScoped<UseCaseListarAutores>();
-            builder.Services.AddScoped<GetAutoresPageUseCase>();
+            builder.Services.AddScoped<ICriarAutor, UseCaseCriarAutor>();
+            builder.Services.AddScoped<IEditarAutor, UseCaseEditarAutor>();
+            builder.Services.AddScoped<IExcluirAutor, UseCaseExcluirAutor>();
+            builder.Services.AddScoped<IObterAutorPorId, UseCaseObterAutorPorId>();
+            builder.Services.AddScoped<IListarAutores, UseCaseListarAutores>();
+            builder.Services.AddScoped<IGetAutoresPage, GetAutoresPageUseCase>();
 
             builder.Services.AddScoped<IItemAcervoRepository, ItemAcervoRepository>();
 
