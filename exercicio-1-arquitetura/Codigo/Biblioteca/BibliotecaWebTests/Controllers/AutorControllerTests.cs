@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using Core;
-using Core.Service;
+﻿using Application.Autor;
+using AutoMapper;
+using Domain.Autor;
 using Mappers;
 using Microsoft.AspNetCore.Mvc;
 using Models;
@@ -11,33 +11,64 @@ namespace BibliotecaWeb.Controllers.Tests
     [TestClass()]
     public class AutorControllerTests
     {
-        private static AutorController controller;
+        private static AutorController? controller;
 
         [TestInitialize]
         public void Initialize()
         {
             // Arrange
-            var mockService = new Mock<IAutorService>();
+            var mockRepository = new Mock<IAutorRepository>();
+
+            mockRepository
+                .Setup(repository => repository.GetAll())
+                .Returns(GetTestAutores());
+
+            mockRepository
+                .Setup(repository => repository.GetById(1))
+                .Returns(GetTargetAutor());
+
+            mockRepository
+                .Setup(repository => repository.GetById(2))
+                .Returns(GetTargetAutor());
 
             IMapper mapper = new MapperConfiguration(cfg =>
-                cfg.AddProfile(new AutorProfile())).CreateMapper();
+                cfg.AddProfile(new AutorProfile()))
+                .CreateMapper();
 
-            mockService.Setup(service => service.GetAll())
-                .Returns(GetTestAutores());
-            mockService.Setup(service => service.Get(1))
-                .Returns(GetTargetAutor());
-            mockService.Setup(service => service.Edit(It.IsAny<Autor>()))
-                .Verifiable();
-            mockService.Setup(service => service.Create(It.IsAny<Autor>()))
-                .Verifiable();
-            controller = new AutorController(mockService.Object, mapper);
+            var createAutorUseCase =
+                new CreateAutorUseCase(mockRepository.Object);
+
+            var updateAutorUseCase =
+                new UpdateAutorUseCase(mockRepository.Object);
+
+            var deleteAutorUseCase =
+                new DeleteAutorUseCase(mockRepository.Object);
+
+            var getAutorByIdUseCase =
+                new GetAutorByIdUseCase(mockRepository.Object);
+
+            var getAllAutoresUseCase =
+                new GetAllAutoresUseCase(mockRepository.Object);
+
+            var getAutoresPageUseCase =
+                new GetAutoresPageUseCase(mockRepository.Object);
+
+            controller = new AutorController(
+                createAutorUseCase,
+                updateAutorUseCase,
+                deleteAutorUseCase,
+                getAutorByIdUseCase,
+                getAllAutoresUseCase,
+                getAutoresPageUseCase,
+                mapper
+            );
         }
 
         [TestMethod()]
         public void IndexTest_Valido()
         {
             // Act
-            var result = controller.Index();
+            var result = controller?.Index();
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -52,7 +83,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void DetailsTest_Valido()
         {
             // Act
-            var result = controller.Details(1);
+            var result = controller?.Details(1);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -67,7 +98,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void CreateTest_Get_Valido()
         {
             // Act
-            var result = controller.Create();
+            var result = controller?.Create();
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
@@ -76,7 +107,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void CreateTest_Valid()
         {
             // Act
-            var result = controller.Create(GetNewAutor());
+            var result = controller?.Create(GetNewAutor());
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
@@ -89,24 +120,24 @@ namespace BibliotecaWeb.Controllers.Tests
         public void CreateTest_Post_Invalid()
         {
             // Arrange
-            controller.ModelState.AddModelError("Nome", "Nome é obrigatório.");
+            controller?.ModelState.AddModelError(
+                "Nome",
+                "Nome é obrigatório."
+            );
 
             // Act
-            var result = controller.Create(GetNewAutor());
-            
+            var result = controller?.Create(GetNewAutor());
+
             // Assert
-            Assert.AreEqual(1, controller.ModelState.ErrorCount);
-            Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
-            RedirectToActionResult redirectToActionResult = (RedirectToActionResult)result;
-            Assert.IsNull(redirectToActionResult.ControllerName);
-            Assert.AreEqual("Index", redirectToActionResult.ActionName);
+            Assert.AreEqual(1, controller?.ModelState.ErrorCount);
+            Assert.IsInstanceOfType(result, typeof(ViewResult));
         }
 
         [TestMethod()]
         public void EditTest_Get_Valid()
         {
             // Act
-            var result = controller.Edit(1);
+            var result = controller?.Edit(1);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -121,7 +152,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void EditTest_Post_Valid()
         {
             // Act
-            var result = controller.Edit(GetTargetAutorModel().Id, GetTargetAutorModel());
+            var result = controller?.Edit(GetTargetAutorModel().Id, GetTargetAutorModel());
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
@@ -134,7 +165,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void DeleteTest_Post_Valid()
         {
             // Act
-            var result = controller.Delete(1);
+            var result = controller?.Delete(1);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(ViewResult));
@@ -149,7 +180,7 @@ namespace BibliotecaWeb.Controllers.Tests
         public void DeleteTest_Get_Valid()
         {
             // Act
-            var result = controller.Delete(GetTargetAutorModel());
+            var result = controller?.Delete(GetTargetAutorModel());
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(RedirectToActionResult));
@@ -168,9 +199,9 @@ namespace BibliotecaWeb.Controllers.Tests
             };
 
         }
-        private static Autor GetTargetAutor()
+        private static AutorEntity GetTargetAutor()
         {
-            return new Autor
+            return new AutorEntity
             {
                 Id = 1,
                 Nome = "Machado de Assis",
@@ -188,28 +219,28 @@ namespace BibliotecaWeb.Controllers.Tests
             };
         }
 
-        private IEnumerable<Autor> GetTestAutores()
+        private IEnumerable<AutorEntity> GetTestAutores()
         {
-            return new List<Autor>
+            return new List<AutorEntity>
             {
-                new Autor
+                new AutorEntity
                 {
                     Id = 1,
                     Nome = "Graciliano Ramos",
                     DataNascimento = DateTime.Parse("1892-10-27")
                 },
-                new Autor
+                new AutorEntity
                 {
                     Id = 2,
                     Nome = "Machado de Assis",
                     DataNascimento = DateTime.Parse("1839-06-21")
                 },
-                new Autor
+                new AutorEntity
                 {
                     Id = 3,
                     Nome = "Marcos Dósea",
                     DataNascimento = DateTime.Parse("1982-01-01")
-                },
+                }
             };
         }
     }
