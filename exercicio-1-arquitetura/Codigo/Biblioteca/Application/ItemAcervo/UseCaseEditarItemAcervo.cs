@@ -11,16 +11,16 @@ public class UseCaseEditarItemAcervo
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public bool Execute(ItemAcervoEntity item)
+    public bool Execute(ItemAcervoDTO dto)
     {
-        var itemExistente = _itemAcervoRepository.GetById(item.Id);
-
-        if(itemExistente == null)
-        {
+        var itemExistente = _itemAcervoRepository.GetById(dto.Id);
+        if (itemExistente == null)
             return false;
-        }
-
-        _itemAcervoRepository.Update(item);
+        itemExistente.IdLivro = dto.IdLivro;
+        itemExistente.IdSituacaoItemAcervo = dto.IdSituacaoItemAcervo;
+        itemExistente.IdDoacao = dto.IdDoacao;
+        itemExistente.DataAquisicao = dto.DataAquisicao;
+        _itemAcervoRepository.Update(itemExistente);
         return true;
     }
 }

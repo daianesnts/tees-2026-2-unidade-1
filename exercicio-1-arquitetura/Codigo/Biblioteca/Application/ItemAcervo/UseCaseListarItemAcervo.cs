@@ -11,8 +11,16 @@ public class UseCaseListarItemAcervo
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public IEnumerable<ItemAcervoEntity> Execute()
+    public IEnumerable<ItemAcervoDTO> Execute()
     {
-        return _itemAcervoRepository.GetAll();
+        var itens = _itemAcervoRepository.GetAll();
+        return itens.Select(item => new ItemAcervoDTO
+        {
+            Id = item.Id,
+            IdLivro = item.IdLivro,
+            IdSituacaoItemAcervo = item.IdSituacaoItemAcervo,
+            IdDoacao = item.IdDoacao,
+            DataAquisicao = item.DataAquisicao
+        });
     }
 }

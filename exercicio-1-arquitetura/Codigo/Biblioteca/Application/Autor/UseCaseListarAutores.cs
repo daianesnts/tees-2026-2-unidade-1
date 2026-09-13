@@ -11,8 +11,14 @@ public class UseCaseListarAutores
         _autorRepository = autorRepository;
     }
 
-    public IEnumerable<AutorEntity> Execute()
+    public IEnumerable<AutorDTO> Execute()
     {
-        return _autorRepository.GetAll();
+        var autores = _autorRepository.GetAll();
+        return autores.Select(autor => new AutorDTO
+        {
+            Id = autor.Id,
+            Nome = autor.Nome,
+            DataNascimento = autor.DataNascimento
+        });
     }
 }

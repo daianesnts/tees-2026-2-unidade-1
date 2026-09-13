@@ -11,8 +11,16 @@ public class UseCaseObterAutorPorId
         _autorRepository = autorRepository;
     }
 
-    public AutorEntity? Execute(uint id)
+    public AutorDTO? Execute(uint id)
     {
-        return _autorRepository.GetById(id);
+        var entity = _autorRepository.GetById(id);
+        if (entity == null)
+            return null;
+        return new AutorDTO
+        {
+            Id = entity.Id,
+            Nome = entity.Nome,
+            DataNascimento = entity.DataNascimento
+        };
     }
 }

@@ -11,8 +11,18 @@ public class UseCaseObterItemAcervoPorId
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public ItemAcervoEntity? Execute(uint id)
+    public ItemAcervoDTO? Execute(uint id)
     {
-        return _itemAcervoRepository.GetById(id);
+        var entity = _itemAcervoRepository.GetById(id);
+        if (entity == null)
+            return null;
+        return new ItemAcervoDTO
+        {
+            Id = entity.Id,
+            IdLivro = entity.IdLivro,
+            IdSituacaoItemAcervo = entity.IdSituacaoItemAcervo,
+            IdDoacao = entity.IdDoacao,
+            DataAquisicao = entity.DataAquisicao
+        };
     }
 }

@@ -1,9 +1,6 @@
 ﻿using Application.Autor;
-using AutoMapper;
-using Domain.Autor;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 
 namespace BibliotecaAPI.Controllers;
 
@@ -12,41 +9,37 @@ namespace BibliotecaAPI.Controllers;
 [ApiController]
 public class AutoresController : ControllerBase
 {
-    private readonly UseCaseCriarAutor _UseCaseCriarAutor;
-    private readonly UseCaseEditarAutor _UseCaseEditarAutor;
-    private readonly UseCaseExcluirAutor _UseCaseExcluirAutor;
-    private readonly UseCaseObterAutorPorId _UseCaseObterAutorPorId;
-    private readonly UseCaseListarAutores _UseCaseListarAutores;
-    private readonly IMapper _mapper;
+    private readonly UseCaseCriarAutor _useCaseCriarAutor;
+    private readonly UseCaseEditarAutor _useCaseEditarAutor;
+    private readonly UseCaseExcluirAutor _useCaseExcluirAutor;
+    private readonly UseCaseObterAutorPorId _useCaseObterAutorPorId;
+    private readonly UseCaseListarAutores _useCaseListarAutores;
 
     public AutoresController(
-        UseCaseCriarAutor UseCaseCriarAutor,
-        UseCaseEditarAutor UseCaseEditarAutor,
-        UseCaseExcluirAutor UseCaseExcluirAutor,
-        UseCaseObterAutorPorId UseCaseObterAutorPorId,
-        UseCaseListarAutores UseCaseListarAutores,
-        IMapper mapper)
+        UseCaseCriarAutor useCaseCriarAutor,
+        UseCaseEditarAutor useCaseEditarAutor,
+        UseCaseExcluirAutor useCaseExcluirAutor,
+        UseCaseObterAutorPorId useCaseObterAutorPorId,
+        UseCaseListarAutores useCaseListarAutores)
     {
-        _UseCaseCriarAutor = UseCaseCriarAutor;
-        _UseCaseEditarAutor = UseCaseEditarAutor;
-        _UseCaseExcluirAutor = UseCaseExcluirAutor;
-        _UseCaseObterAutorPorId = UseCaseObterAutorPorId;
-        _UseCaseListarAutores = UseCaseListarAutores;
-        _mapper = mapper;
+        _useCaseCriarAutor = useCaseCriarAutor;
+        _useCaseEditarAutor = useCaseEditarAutor;
+        _useCaseExcluirAutor = useCaseExcluirAutor;
+        _useCaseObterAutorPorId = useCaseObterAutorPorId;
+        _useCaseListarAutores = useCaseListarAutores;
     }
 
     [HttpGet]
     public ActionResult Get()
     {
-        var listaAutores = _UseCaseListarAutores.Execute();
-
+        var listaAutores = _useCaseListarAutores.Execute();
         return Ok(listaAutores);
     }
 
     [HttpGet("{id}")]
     public ActionResult Get(uint id)
     {
-        var autor = _UseCaseObterAutorPorId.Execute(id);
+        var autor = _useCaseObterAutorPorId.Execute(id);
 
         if (autor == null)
             return NotFound();
@@ -55,48 +48,38 @@ public class AutoresController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult Post([FromBody] AutorViewModel autorModel)
+    public ActionResult Post([FromBody] AutorDTO dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Dados inválidos.");
+        var id = _useCaseCriarAutor.Execute(dto);
 
-        var autor = _mapper.Map<AutorEntity>(autorModel);
-
-        _UseCaseCriarAutor.Execute(autor);
-
-        return Ok();
+        return CreatedAtAction(nameof(Get), new { id }, dto);
     }
 
     [HttpPut("{id}")]
-    public ActionResult Put(uint id, [FromBody] AutorViewModel autorModel)
+    public ActionResult Put(uint id, [FromBody] AutorDTO dto)
     {
-        if (!ModelState.IsValid)
-            return BadRequest("Dados inválidos.");
+        dto.Id = id;
 
-        var autor = _mapper.Map<AutorEntity>(autorModel);
-
-        autor.Id = id;
-
-        var atualizado = _UseCaseEditarAutor.Execute(autor);
+        var atualizado = _useCaseEditarAutor.Execute(dto);
 
         if (!atualizado)
         {
             return NotFound("Autor não encontrado.");
         }
 
-        return Ok();
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
     public ActionResult Delete(uint id)
     {
-        var autor = _UseCaseObterAutorPorId.Execute(id);
+        var autor = _useCaseObterAutorPorId.Execute(id);
 
         if (autor == null)
-            return NotFound();
+            return NotFound("Autor não encontrado.");
 
-        _UseCaseExcluirAutor.Execute(id);
+        _useCaseExcluirAutor.Execute(id);
 
-        return Ok();
+        return NoContent();
     }
 }

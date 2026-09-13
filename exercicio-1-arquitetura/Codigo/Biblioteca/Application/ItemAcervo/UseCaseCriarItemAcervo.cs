@@ -11,10 +11,17 @@ public class UseCaseCriarItemAcervo
         _itemAcervoRepository = itemAcervoRepository;
     }
 
-    public uint Execute(ItemAcervoEntity item)
+    public uint Execute(ItemAcervoDTO dto)
     {
-        _itemAcervoRepository.Create(item);
-        return item.Id;
+        var entity = new ItemAcervoEntity
+        {
+            IdLivro = dto.IdLivro,
+            IdSituacaoItemAcervo = dto.IdSituacaoItemAcervo,
+            IdDoacao = dto.IdDoacao,
+            DataAquisicao = dto.DataAquisicao
+        };
+        _itemAcervoRepository.Create(entity);
+        return entity.Id;
     }
 }
 
