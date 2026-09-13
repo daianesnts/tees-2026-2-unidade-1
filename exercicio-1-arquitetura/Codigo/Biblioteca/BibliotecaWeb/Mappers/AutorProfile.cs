@@ -1,6 +1,5 @@
-﻿using AutoMapper;
-using Core;
-using Domain.Autor;
+using Application.Autor;
+using AutoMapper;
 using Models;
 
 namespace Mappers;
@@ -9,12 +8,7 @@ public class AutorProfile : Profile
 {
     public AutorProfile()
     {
-        // Sistema antigo
-        CreateMap<AutorViewModel, Autor>()
-            .ReverseMap();
-
-        // Clean Architecture
-        CreateMap<AutorViewModel, AutorEntity>()
+        CreateMap<AutorViewModel, AutorDTO>()
             .ReverseMap();
     }
 }

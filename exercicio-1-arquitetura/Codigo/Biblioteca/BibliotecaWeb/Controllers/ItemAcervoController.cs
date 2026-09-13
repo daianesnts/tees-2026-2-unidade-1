@@ -1,38 +1,54 @@
-﻿using AutoMapper;
+using Application.ItemAcervo;
+using AutoMapper;
 using BibliotecaWEB.Models;
-using Core;
-using Core.Service;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
 
 namespace BibliotecaWeb.Controllers
 {
     //[Authorize]
     public class ItemAcervoController : Controller
     {
-        private readonly IItemAcervoService itemAcervoService;
-        private readonly IMapper mapper;
+        private readonly UseCaseCriarItemAcervo _useCaseCriarItemAcervo;
+        private readonly UseCaseEditarItemAcervo _useCaseEditarItemAcervo;
+        private readonly UseCaseExcluirItemAcervo _useCaseExcluirItemAcervo;
+        private readonly UseCaseObterItemAcervoPorId _useCaseObterItemAcervoPorId;
+        private readonly UseCaseListarItemAcervo _useCaseListarItemAcervo;
+        private readonly IMapper _mapper;
 
-        public ItemAcervoController(IItemAcervoService itemAcervoService, IMapper mapper)
+        public ItemAcervoController(
+            UseCaseCriarItemAcervo useCaseCriarItemAcervo,
+            UseCaseEditarItemAcervo useCaseEditarItemAcervo,
+            UseCaseExcluirItemAcervo useCaseExcluirItemAcervo,
+            UseCaseObterItemAcervoPorId useCaseObterItemAcervoPorId,
+            UseCaseListarItemAcervo useCaseListarItemAcervo,
+            IMapper mapper)
         {
-            this.itemAcervoService = itemAcervoService;
-            this.mapper = mapper;
+            _useCaseCriarItemAcervo = useCaseCriarItemAcervo;
+            _useCaseEditarItemAcervo = useCaseEditarItemAcervo;
+            _useCaseExcluirItemAcervo = useCaseExcluirItemAcervo;
+            _useCaseObterItemAcervoPorId = useCaseObterItemAcervoPorId;
+            _useCaseListarItemAcervo = useCaseListarItemAcervo;
+            _mapper = mapper;
         }
 
 
         // GET: ItemAcervoController
         public ActionResult Index()
         {
-            var listaItemAcervo = itemAcervoService.GetAll();
-            return View(listaItemAcervo);
+            var listaItemAcervo = _useCaseListarItemAcervo.Execute();
+            var listaViewModel = _mapper.Map<List<ItemAcervoViewModel>>(listaItemAcervo);
+            return View(listaViewModel);
         }
 
         // GET: ItemAcervoController/Details/5
         public ActionResult Details(int id)
         {
-            var itemAcervo = itemAcervoService.Get(id);
-            ItemAcervoViewModel itemAcervoViewModel = mapper.Map<ItemAcervoViewModel>(itemAcervo);
+            var itemAcervo = _useCaseObterItemAcervoPorId.Execute((uint)id);
+            if (itemAcervo == null)
+            {
+                return NotFound();
+            }
+            ItemAcervoViewModel itemAcervoViewModel = _mapper.Map<ItemAcervoViewModel>(itemAcervo);
             return View(itemAcervoViewModel);
         }
 
@@ -49,17 +65,22 @@ namespace BibliotecaWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var itemAcervo = mapper.Map<Itemacervo>(itemAcervoViewModel);
-                itemAcervoService.Create(itemAcervo);
+                var dto = _mapper.Map<ItemAcervoDTO>(itemAcervoViewModel);
+                _useCaseCriarItemAcervo.Execute(dto);
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            return View(itemAcervoViewModel);
         }
 
         // GET: ItemAcervoController/Edit/5
         public ActionResult Edit(int id)
         {
-            var itemAcervo = itemAcervoService.Get(id);
-            ItemAcervoViewModel itemAcervoViewModel = mapper.Map<ItemAcervoViewModel>(itemAcervo);
+            var itemAcervo = _useCaseObterItemAcervoPorId.Execute((uint)id);
+            if (itemAcervo == null)
+            {
+                return NotFound();
+            }
+            ItemAcervoViewModel itemAcervoViewModel = _mapper.Map<ItemAcervoViewModel>(itemAcervo);
             return View(itemAcervoViewModel);
         }
 
@@ -70,17 +91,23 @@ namespace BibliotecaWeb.Controllers
         {
             if (ModelState.IsValid)
             {
-                var itemAcervo = mapper.Map<Itemacervo>(itemAcervoViewModel);
-                itemAcervoService.Edit(itemAcervo);
+                itemAcervoViewModel.Id = id;
+                var dto = _mapper.Map<ItemAcervoDTO>(itemAcervoViewModel);
+                _useCaseEditarItemAcervo.Execute(dto);
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            return View(itemAcervoViewModel);
         }
 
         // GET: ItemAcervoController/Delete/5
         public ActionResult Delete(int id)
         {
-            var itemAcervo = itemAcervoService.Get(id);
-            ItemAcervoViewModel itemAcervoViewModel = mapper.Map<ItemAcervoViewModel>(itemAcervo);
+            var itemAcervo = _useCaseObterItemAcervoPorId.Execute((uint)id);
+            if (itemAcervo == null)
+            {
+                return NotFound();
+            }
+            ItemAcervoViewModel itemAcervoViewModel = _mapper.Map<ItemAcervoViewModel>(itemAcervo);
             return View(itemAcervoViewModel);
         }
 
@@ -89,7 +116,7 @@ namespace BibliotecaWeb.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Delete(int id, ItemAcervoViewModel itemAcervoViewModel)
         {
-            itemAcervoService.Delete(id);
+            _useCaseExcluirItemAcervo.Execute((uint)id);
             return RedirectToAction(nameof(Index));
         }
     }

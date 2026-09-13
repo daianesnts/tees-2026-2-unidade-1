@@ -1,4 +1,4 @@
-﻿using Application.Autor;
+using Application.Autor;
 using AutoMapper;
 using Core.Datatables;
 using Domain.Autor;
@@ -91,7 +91,7 @@ namespace BibliotecaWeb.Controllers
             }
 
             var autor =
-                _mapper.Map<AutorEntity>(
+                _mapper.Map<AutorDTO>(
                     autorViewModel
                 );
 
@@ -129,7 +129,7 @@ namespace BibliotecaWeb.Controllers
             }
 
             var autor =
-                _mapper.Map<AutorEntity>(
+                _mapper.Map<AutorDTO>(
                     autorViewModel
                 );
 

@@ -1,5 +1,5 @@
-﻿using AutoMapper;
-using Core;
+using Application.Editora;
+using AutoMapper;
 using Models;
 
 namespace Mappers
@@ -8,7 +8,9 @@ namespace Mappers
     {
         public EditoraProfile()
         {
-            CreateMap<EditoraViewModel, Editora>().ReverseMap();
+            CreateMap<EditoraViewModel, EditoraDTO>().ReverseMap();
+            CreateMap<EditoraViewModel, CriarEditoraDTO>();
+            CreateMap<EditoraViewModel, AtualizarEditoraDTO>();
         }
     }
 }

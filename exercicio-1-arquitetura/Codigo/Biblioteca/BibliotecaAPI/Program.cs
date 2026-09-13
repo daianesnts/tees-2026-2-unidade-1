@@ -5,12 +5,8 @@ using Domain.Autor;
 using Infrastructure;
 
 using BibliotecaAPI.Filter;
-using Core;
+
 using Core.Identity.Data;
-using Core.Service;
-
-using Service;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Domain.ItemAcervo;
@@ -30,7 +26,6 @@ namespace BibliotecaAPI
 
             ConfigureControllers(builder);
             ConfigureSwagger(builder);
-            ConfigureLegacyArchitecture(builder);
             ConfigureCleanArchitecture(builder);
             ConfigureAutoMapper(builder);
             ConfigureIdentity(builder);
@@ -54,16 +49,6 @@ namespace BibliotecaAPI
         {
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-        }
-
-        private static void ConfigureLegacyArchitecture(WebApplicationBuilder builder)
-        {
-            builder.Services.AddTransient<IAutorService, AutorService>();
-            builder.Services.AddTransient<ILivroService, LivroService>();
-
-            builder.Services.AddDbContext<BibliotecaContext>(
-                options => options.UseInMemoryDatabase("BibliotecaDatabase")
-            );
         }
 
         private static void ConfigureCleanArchitecture(WebApplicationBuilder builder)

@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Core.DTO.ItemAcervoDto>
+@model IEnumerable<BibliotecaWEB.Models.ItemAcervoViewModel>
 
 <link rel="stylesheet" type="text/css" href="~/lib/datatable/css/jquery.dataTables.min.css" />
 <p>
@@ -11,13 +11,13 @@
                 @Html.DisplayNameFor(model => model.Id)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NomeBiblioteca)
+                @Html.DisplayNameFor(model => model.IdBiblioteca)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NomeLivro)
+                @Html.DisplayNameFor(model => model.IdLivro)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SituacaoItemAcervo)
+                @Html.DisplayNameFor(model => model.IdSituacaoLivro)
             </th>
             <th></th>
         </tr>
@@ -29,13 +29,13 @@
                 @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NomeBiblioteca)
+                @Html.DisplayFor(modelItem => item.IdBiblioteca)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.NomeLivro)
+                @Html.DisplayFor(modelItem => item.IdLivro)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SituacaoItemAcervo)
+                @Html.DisplayFor(modelItem => item.IdSituacaoLivro)
             </td>
             <td>
                 @Html.ActionLink("Editar", "Edit", new { id=item.Id}) |
