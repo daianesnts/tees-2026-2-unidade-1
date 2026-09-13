@@ -12,5 +12,5 @@ public class ItemAcervoEntity
 
     public DateTime DataAquisicao { get; set; }
 
-    // public uint IdBiblioteca { get; set; } omitido por falta de entiadade biblioteca
+    public uint IdBiblioteca { get; set; }
 }

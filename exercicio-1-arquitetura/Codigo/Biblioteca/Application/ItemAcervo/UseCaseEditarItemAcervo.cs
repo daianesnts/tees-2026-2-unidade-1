@@ -17,6 +17,7 @@ public class UseCaseEditarItemAcervo
         if (itemExistente == null)
             return false;
         itemExistente.IdLivro = dto.IdLivro;
+        itemExistente.IdBiblioteca = dto.IdBiblioteca;
         itemExistente.IdSituacaoItemAcervo = dto.IdSituacaoItemAcervo;
         itemExistente.IdDoacao = dto.IdDoacao;
         itemExistente.DataAquisicao = dto.DataAquisicao;

@@ -16,6 +16,7 @@ public class UseCaseCriarItemAcervo
         var entity = new ItemAcervoEntity
         {
             IdLivro = dto.IdLivro,
+            IdBiblioteca = dto.IdBiblioteca,
             IdSituacaoItemAcervo = dto.IdSituacaoItemAcervo,
             IdDoacao = dto.IdDoacao,
             DataAquisicao = dto.DataAquisicao

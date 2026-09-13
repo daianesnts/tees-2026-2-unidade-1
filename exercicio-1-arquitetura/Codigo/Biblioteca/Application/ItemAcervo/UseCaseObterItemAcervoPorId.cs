@@ -20,6 +20,7 @@ public class UseCaseObterItemAcervoPorId
         {
             Id = entity.Id,
             IdLivro = entity.IdLivro,
+            IdBiblioteca = entity.IdBiblioteca,
             IdSituacaoItemAcervo = entity.IdSituacaoItemAcervo,
             IdDoacao = entity.IdDoacao,
             DataAquisicao = entity.DataAquisicao

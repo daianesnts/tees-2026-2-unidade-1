@@ -18,6 +18,7 @@ public class UseCaseListarItemAcervo
         {
             Id = item.Id,
             IdLivro = item.IdLivro,
+            IdBiblioteca = item.IdBiblioteca,
             IdSituacaoItemAcervo = item.IdSituacaoItemAcervo,
             IdDoacao = item.IdDoacao,
             DataAquisicao = item.DataAquisicao

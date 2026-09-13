@@ -8,6 +8,8 @@ public class ItemAcervoDTO
 
     public string IdSituacaoItemAcervo { get; set; } = string.Empty;
 
+    public uint IdBiblioteca { get; set; }
+
     public uint? IdDoacao { get; set; }
     
     public DateTime DataAquisicao { get; set; }
