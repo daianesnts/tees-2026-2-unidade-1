@@ -2,11 +2,11 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class GetAllAutoresUseCase
+public class UseCaseListarAutores
 {
     private readonly IAutorRepository _autorRepository;
 
-    public GetAllAutoresUseCase(IAutorRepository autorRepository)
+    public UseCaseListarAutores(IAutorRepository autorRepository)
     {
         _autorRepository = autorRepository;
     }

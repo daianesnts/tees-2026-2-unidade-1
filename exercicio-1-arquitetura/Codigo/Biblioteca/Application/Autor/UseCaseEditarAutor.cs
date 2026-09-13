@@ -2,11 +2,11 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class UpdateAutorUseCase
+public class UseCaseEditarAutor
 {
     private readonly IAutorRepository _autorRepository;
 
-    public UpdateAutorUseCase(
+    public UseCaseEditarAutor(
         IAutorRepository autorRepository
     )
     {

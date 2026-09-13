@@ -35,30 +35,30 @@ namespace BibliotecaWeb.Controllers.Tests
                 cfg.AddProfile(new AutorProfile()))
                 .CreateMapper();
 
-            var createAutorUseCase =
-                new CreateAutorUseCase(mockRepository.Object);
+            var UseCaseCriarAutor =
+                new UseCaseCriarAutor(mockRepository.Object);
 
-            var updateAutorUseCase =
-                new UpdateAutorUseCase(mockRepository.Object);
+            var UseCaseEditarAutor =
+                new UseCaseEditarAutor(mockRepository.Object);
 
-            var deleteAutorUseCase =
-                new DeleteAutorUseCase(mockRepository.Object);
+            var UseCaseExcluirAutor =
+                new UseCaseExcluirAutor(mockRepository.Object);
 
-            var getAutorByIdUseCase =
-                new GetAutorByIdUseCase(mockRepository.Object);
+            var UseCaseObterAutorPorId =
+                new UseCaseObterAutorPorId(mockRepository.Object);
 
-            var getAllAutoresUseCase =
-                new GetAllAutoresUseCase(mockRepository.Object);
+            var UseCaseListarAutores =
+                new UseCaseListarAutores(mockRepository.Object);
 
             var getAutoresPageUseCase =
                 new GetAutoresPageUseCase(mockRepository.Object);
 
             controller = new AutorController(
-                createAutorUseCase,
-                updateAutorUseCase,
-                deleteAutorUseCase,
-                getAutorByIdUseCase,
-                getAllAutoresUseCase,
+                UseCaseCriarAutor,
+                UseCaseEditarAutor,
+                UseCaseExcluirAutor,
+                UseCaseObterAutorPorId,
+                UseCaseListarAutores,
                 getAutoresPageUseCase,
                 mapper
             );

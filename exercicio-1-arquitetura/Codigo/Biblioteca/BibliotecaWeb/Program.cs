@@ -60,11 +60,11 @@ namespace BibliotecaWeb
             >();
 
 
-            builder.Services.AddScoped<CreateAutorUseCase>();
-            builder.Services.AddScoped<UpdateAutorUseCase>();
-            builder.Services.AddScoped<DeleteAutorUseCase>();
-            builder.Services.AddScoped<GetAutorByIdUseCase>();
-            builder.Services.AddScoped<GetAllAutoresUseCase>();
+            builder.Services.AddScoped<UseCaseCriarAutor>();
+            builder.Services.AddScoped<UseCaseEditarAutor>();
+            builder.Services.AddScoped<UseCaseExcluirAutor>();
+            builder.Services.AddScoped<UseCaseObterAutorPorId>();
+            builder.Services.AddScoped<UseCaseListarAutores>();
             builder.Services.AddScoped<GetAutoresPageUseCase>();
 
 

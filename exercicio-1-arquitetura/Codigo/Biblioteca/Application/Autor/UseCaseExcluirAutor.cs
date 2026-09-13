@@ -2,11 +2,11 @@ using Domain.Autor;
 
 namespace Application.Autor;
 
-public class DeleteAutorUseCase
+public class UseCaseExcluirAutor
 {
     private readonly IAutorRepository _autorRepository;
 
-    public DeleteAutorUseCase(IAutorRepository autorRepository)
+    public UseCaseExcluirAutor(IAutorRepository autorRepository)
     {
         _autorRepository = autorRepository;
     }

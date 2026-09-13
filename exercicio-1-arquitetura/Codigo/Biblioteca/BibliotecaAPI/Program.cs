@@ -74,20 +74,20 @@ namespace BibliotecaAPI
 
             builder.Services.AddScoped<IAutorRepository, AutorRepository>();
 
-            builder.Services.AddScoped<CreateAutorUseCase>();
-            builder.Services.AddScoped<UpdateAutorUseCase>();
-            builder.Services.AddScoped<DeleteAutorUseCase>();
-            builder.Services.AddScoped<GetAutorByIdUseCase>();
-            builder.Services.AddScoped<GetAllAutoresUseCase>();
+            builder.Services.AddScoped<UseCaseCriarAutor>();
+            builder.Services.AddScoped<UseCaseEditarAutor>();
+            builder.Services.AddScoped<UseCaseExcluirAutor>();
+            builder.Services.AddScoped<UseCaseObterAutorPorId>();
+            builder.Services.AddScoped<UseCaseListarAutores>();
             builder.Services.AddScoped<GetAutoresPageUseCase>();
 
-            builder.Services.AddScoped<IItemAcervoRepository, ItemAcervorepository>();
+            builder.Services.AddScoped<IItemAcervoRepository, ItemAcervoRepository>();
 
-            builder.Services.AddScoped<CreateItemAcervoUseCase>();
-            builder.Services.AddScoped<DeleteItemAcervoUseCase>();
-            builder.Services.AddScoped<UpdateItemAcervoUseCase>();
-            builder.Services.AddScoped<GetAllItemAcervoUseCase>();
-            builder.Services.AddScoped<GetItemAcervoByIdUseCase>();
+            builder.Services.AddScoped<UseCaseCriarItemAcervo>();
+            builder.Services.AddScoped<UseCaseExcluirItemAcervo>();
+            builder.Services.AddScoped<UseCaseEditarItemAcervo>();
+            builder.Services.AddScoped<UseCaseListarItemAcervo>();
+            builder.Services.AddScoped<UseCaseObterItemAcervoPorId>();
 
             builder.Services.AddScoped<IEditoraRepository, EditoraRepository>();
 

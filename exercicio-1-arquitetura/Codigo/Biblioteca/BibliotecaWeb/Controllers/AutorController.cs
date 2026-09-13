@@ -10,29 +10,29 @@ namespace BibliotecaWeb.Controllers
 {
     public class AutorController : Controller
     {
-        private readonly CreateAutorUseCase _createAutorUseCase;
-        private readonly UpdateAutorUseCase _updateAutorUseCase;
-        private readonly DeleteAutorUseCase _deleteAutorUseCase;
-        private readonly GetAutorByIdUseCase _getAutorByIdUseCase;
-        private readonly GetAllAutoresUseCase _getAllAutoresUseCase;
+        private readonly UseCaseCriarAutor _UseCaseCriarAutor;
+        private readonly UseCaseEditarAutor _UseCaseEditarAutor;
+        private readonly UseCaseExcluirAutor _UseCaseExcluirAutor;
+        private readonly UseCaseObterAutorPorId _UseCaseObterAutorPorId;
+        private readonly UseCaseListarAutores _UseCaseListarAutores;
         private readonly GetAutoresPageUseCase _getAutoresPageUseCase;
         private readonly IMapper _mapper;
 
 
         public AutorController(
-            CreateAutorUseCase createAutorUseCase,
-            UpdateAutorUseCase updateAutorUseCase,
-            DeleteAutorUseCase deleteAutorUseCase,
-            GetAutorByIdUseCase getAutorByIdUseCase,
-            GetAllAutoresUseCase getAllAutoresUseCase,
+            UseCaseCriarAutor UseCaseCriarAutor,
+            UseCaseEditarAutor UseCaseEditarAutor,
+            UseCaseExcluirAutor UseCaseExcluirAutor,
+            UseCaseObterAutorPorId UseCaseObterAutorPorId,
+            UseCaseListarAutores UseCaseListarAutores,
             GetAutoresPageUseCase getAutoresPageUseCase,
             IMapper mapper)
         {
-            _createAutorUseCase = createAutorUseCase;
-            _updateAutorUseCase = updateAutorUseCase;
-            _deleteAutorUseCase = deleteAutorUseCase;
-            _getAutorByIdUseCase = getAutorByIdUseCase;
-            _getAllAutoresUseCase = getAllAutoresUseCase;
+            _UseCaseCriarAutor = UseCaseCriarAutor;
+            _UseCaseEditarAutor = UseCaseEditarAutor;
+            _UseCaseExcluirAutor = UseCaseExcluirAutor;
+            _UseCaseObterAutorPorId = UseCaseObterAutorPorId;
+            _UseCaseListarAutores = UseCaseListarAutores;
             _getAutoresPageUseCase = getAutoresPageUseCase;
 
             _mapper = mapper;
@@ -41,7 +41,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Index()
         {
             var listaAutores =
-                _getAllAutoresUseCase.Execute();
+                _UseCaseListarAutores.Execute();
 
             var listaAutorViewModel =
                 _mapper.Map<List<AutorViewModel>>(
@@ -54,7 +54,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Details(uint id)
         {
             var autor =
-                _getAutorByIdUseCase.Execute(id);
+                _UseCaseObterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -95,7 +95,7 @@ namespace BibliotecaWeb.Controllers
                     autorViewModel
                 );
 
-            _createAutorUseCase.Execute(autor);
+            _UseCaseCriarAutor.Execute(autor);
 
             return RedirectToAction(nameof(Index));
         }
@@ -103,7 +103,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Edit(uint id)
         {
             var autor =
-                _getAutorByIdUseCase.Execute(id);
+                _UseCaseObterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -136,7 +136,7 @@ namespace BibliotecaWeb.Controllers
             autor.Id = id;
 
             var atualizado =
-                _updateAutorUseCase.Execute(autor);
+                _UseCaseEditarAutor.Execute(autor);
 
             if (!atualizado)
             {
@@ -149,7 +149,7 @@ namespace BibliotecaWeb.Controllers
         public ActionResult Delete(uint id)
         {
             var autor =
-                _getAutorByIdUseCase.Execute(id);
+                _UseCaseObterAutorPorId.Execute(id);
 
             if (autor == null)
             {
@@ -168,7 +168,7 @@ namespace BibliotecaWeb.Controllers
             AutorViewModel autorViewModel
         )
         {
-            _deleteAutorUseCase.Execute(
+            _UseCaseExcluirAutor.Execute(
                 autorViewModel.Id
             );
 

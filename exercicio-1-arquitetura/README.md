@@ -38,7 +38,7 @@ Limitação dessa abordagem: a regra de negócio (Service) conhece o Entity Fram
 BibliotecaWeb / BibliotecaAPI  (Controllers)
         │
         ▼
-   Application       (Use Cases: CreateAutorUseCase, UpdateAutorUseCase...)
+   Application       (Use Cases: UseCaseCriarAutor, UseCaseEditarAutor...)
         │
         ▼
      Domain          (Entidades: AutorEntity + Interfaces: IAutorRepository)
@@ -49,13 +49,13 @@ BibliotecaWeb / BibliotecaAPI  (Controllers)
 ```
 
 - Domain: entidades puras (`AutorEntity`, `EditoraEntity`, `ItemAcervoEntity`) e interfaces de repositório (`IAutorRepository`, `IEditoraRepository`, `IItemAcervoRepository`), sem nenhuma dependência de Entity Framework.
-- Application: Use Cases (um por operação de negócio), como `CreateAutorUseCase`, `UpdateAutorUseCase`, `DeleteAutorUseCase`, `GetAutorByIdUseCase`, `GetAllAutoresUseCase`, `GetAutoresPageUseCase`. Dependem apenas das interfaces do `Domain`, nunca do EF diretamente.
+- Application: Use Cases (um por operação de negócio), como `UseCaseCriarAutor`, `UseCaseEditarAutor`, `UseCaseExcluirAutor`, `UseCaseObterAutorPorId`, `UseCaseListarAutores`, `GetAutoresPageUseCase`. Dependem apenas das interfaces do `Domain`, nunca do EF diretamente.
 - Infrastructure: implementação concreta dos repositórios (`AutorRepository`) usando um novo `Context` (EF Core), além das implementações de `Editora` e `ItemAcervo`.
 - Banco de dados: passou a usar EF Core InMemory (`UseInMemoryDatabase`), tanto para o `Context` novo quanto para o `BibliotecaContext` antigo e o `IdentityContext`. Isso elimina a necessidade de configurar um MySQL real para rodar o projeto localmente.
 
 ## Por que migrar para Clean Architecture?
 
-- Desacoplamento: no código antigo, o `Service` conhecia o Entity Framework diretamente, então trocar de banco de dados exigiria alterar a camada de regra de negócio. No código novo, o `CreateAutorUseCase` só conhece a interface `IAutorRepository`, sem saber (nem precisar saber) que existe um EF Core por trás.
+- Desacoplamento: no código antigo, o `Service` conhecia o Entity Framework diretamente, então trocar de banco de dados exigiria alterar a camada de regra de negócio. No código novo, o `UseCaseCriarAutor` só conhece a interface `IAutorRepository`, sem saber (nem precisar saber) que existe um EF Core por trás.
 - Testabilidade: como o Use Case depende de uma interface (`IAutorRepository`) e não de um `DbContext` real, é possível testar a regra de negócio "criar um autor" simulando (mockando) o repositório, sem precisar de um banco de dados de verdade.
 - Separação de responsabilidades: `Domain` define o que o sistema faz (regras e contratos); `Application` orquestra os casos de uso; `Infrastructure` decide como os dados são persistidos, e cada camada pode evoluir de forma independente.
 
@@ -65,11 +65,11 @@ BibliotecaWeb / BibliotecaAPI  (Controllers)
 
 O `AutorService` (arquitetura antiga) concentra numa única classe: validação de regra de negócio (ex.: checar se o ano de nascimento é válido), todas as operações de CRUD, e ainda lógica de ordenação, filtro e paginação para o datatable, tudo misturado em cerca de 180 linhas.
 
-Na Clean Architecture, cada operação foi separada em sua própria classe de Use Case: `CreateAutorUseCase`, `UpdateAutorUseCase`, `DeleteAutorUseCase`, `GetAutorByIdUseCase`, `GetAllAutoresUseCase`, `GetAutoresPageUseCase`. O `CreateAutorUseCase`, por exemplo, faz apenas uma coisa: valida os dados do autor e delega a criação ao repositório.
+Na Clean Architecture, cada operação foi separada em sua própria classe de Use Case: `UseCaseCriarAutor`, `UseCaseEditarAutor`, `UseCaseExcluirAutor`, `UseCaseObterAutorPorId`, `UseCaseListarAutores`, `GetAutoresPageUseCase`. O `UseCaseCriarAutor`, por exemplo, faz apenas uma coisa: valida os dados do autor e delega a criação ao repositório.
 
 ```csharp
-// Application/Autor/CreateAutorUseCase.cs
-public class CreateAutorUseCase
+// Application/Autor/UseCaseCriarAutor.cs
+public class UseCaseCriarAutor
 {
     private readonly IAutorRepository _autorRepository;
 
@@ -97,11 +97,11 @@ public class AutorService : IAutorService
 }
 ```
 
-No código novo, o `CreateAutorUseCase` depende apenas de uma interface (`IAutorRepository`), definida dentro do próprio `Domain`:
+No código novo, o `UseCaseCriarAutor` depende apenas de uma interface (`IAutorRepository`), definida dentro do próprio `Domain`:
 
 ```csharp
-// Application/Autor/CreateAutorUseCase.cs
-public class CreateAutorUseCase
+// Application/Autor/UseCaseCriarAutor.cs
+public class UseCaseCriarAutor
 {
     private readonly IAutorRepository _autorRepository; // dependência de abstração
     ...

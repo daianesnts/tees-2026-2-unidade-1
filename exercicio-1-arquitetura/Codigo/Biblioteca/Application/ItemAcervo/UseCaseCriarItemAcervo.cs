@@ -2,11 +2,11 @@ using Domain.ItemAcervo;
 
 namespace Application.ItemAcervo;
 
-public class CreateItemAcervoUseCase
+public class UseCaseCriarItemAcervo
 {
     private readonly IItemAcervoRepository _itemAcervoRepository;
 
-    public CreateItemAcervoUseCase(IItemAcervoRepository itemAcervoRepository)
+    public UseCaseCriarItemAcervo(IItemAcervoRepository itemAcervoRepository)
     {
         _itemAcervoRepository = itemAcervoRepository;
     }

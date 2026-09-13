@@ -12,33 +12,33 @@ namespace BibliotecaAPI.Controllers;
 [ApiController]
 public class AutoresController : ControllerBase
 {
-    private readonly CreateAutorUseCase _createAutorUseCase;
-    private readonly UpdateAutorUseCase _updateAutorUseCase;
-    private readonly DeleteAutorUseCase _deleteAutorUseCase;
-    private readonly GetAutorByIdUseCase _getAutorByIdUseCase;
-    private readonly GetAllAutoresUseCase _getAllAutoresUseCase;
+    private readonly UseCaseCriarAutor _UseCaseCriarAutor;
+    private readonly UseCaseEditarAutor _UseCaseEditarAutor;
+    private readonly UseCaseExcluirAutor _UseCaseExcluirAutor;
+    private readonly UseCaseObterAutorPorId _UseCaseObterAutorPorId;
+    private readonly UseCaseListarAutores _UseCaseListarAutores;
     private readonly IMapper _mapper;
 
     public AutoresController(
-        CreateAutorUseCase createAutorUseCase,
-        UpdateAutorUseCase updateAutorUseCase,
-        DeleteAutorUseCase deleteAutorUseCase,
-        GetAutorByIdUseCase getAutorByIdUseCase,
-        GetAllAutoresUseCase getAllAutoresUseCase,
+        UseCaseCriarAutor UseCaseCriarAutor,
+        UseCaseEditarAutor UseCaseEditarAutor,
+        UseCaseExcluirAutor UseCaseExcluirAutor,
+        UseCaseObterAutorPorId UseCaseObterAutorPorId,
+        UseCaseListarAutores UseCaseListarAutores,
         IMapper mapper)
     {
-        _createAutorUseCase = createAutorUseCase;
-        _updateAutorUseCase = updateAutorUseCase;
-        _deleteAutorUseCase = deleteAutorUseCase;
-        _getAutorByIdUseCase = getAutorByIdUseCase;
-        _getAllAutoresUseCase = getAllAutoresUseCase;
+        _UseCaseCriarAutor = UseCaseCriarAutor;
+        _UseCaseEditarAutor = UseCaseEditarAutor;
+        _UseCaseExcluirAutor = UseCaseExcluirAutor;
+        _UseCaseObterAutorPorId = UseCaseObterAutorPorId;
+        _UseCaseListarAutores = UseCaseListarAutores;
         _mapper = mapper;
     }
 
     [HttpGet]
     public ActionResult Get()
     {
-        var listaAutores = _getAllAutoresUseCase.Execute();
+        var listaAutores = _UseCaseListarAutores.Execute();
 
         return Ok(listaAutores);
     }
@@ -46,7 +46,7 @@ public class AutoresController : ControllerBase
     [HttpGet("{id}")]
     public ActionResult Get(uint id)
     {
-        var autor = _getAutorByIdUseCase.Execute(id);
+        var autor = _UseCaseObterAutorPorId.Execute(id);
 
         if (autor == null)
             return NotFound();
@@ -62,7 +62,7 @@ public class AutoresController : ControllerBase
 
         var autor = _mapper.Map<AutorEntity>(autorModel);
 
-        _createAutorUseCase.Execute(autor);
+        _UseCaseCriarAutor.Execute(autor);
 
         return Ok();
     }
@@ -77,7 +77,7 @@ public class AutoresController : ControllerBase
 
         autor.Id = id;
 
-        var atualizado = _updateAutorUseCase.Execute(autor);
+        var atualizado = _UseCaseEditarAutor.Execute(autor);
 
         if (!atualizado)
         {
@@ -90,12 +90,12 @@ public class AutoresController : ControllerBase
     [HttpDelete("{id}")]
     public ActionResult Delete(uint id)
     {
-        var autor = _getAutorByIdUseCase.Execute(id);
+        var autor = _UseCaseObterAutorPorId.Execute(id);
 
         if (autor == null)
             return NotFound();
 
-        _deleteAutorUseCase.Execute(id);
+        _UseCaseExcluirAutor.Execute(id);
 
         return Ok();
     }
