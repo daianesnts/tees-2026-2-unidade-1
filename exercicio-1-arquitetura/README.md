@@ -1,162 +1,46 @@
 # Sistema de Biblioteca: Migração de Arquitetura
 
-## Sobre o projeto
-
-O sistema permite o cadastro e gerenciamento de Autores, Editoras, Livros e Itens de Acervo de uma biblioteca, com autenticação de usuários (ASP.NET Identity), disponibilizado tanto como aplicação web (MVC + Razor Pages) quanto como API REST.
-
-Este repositório documenta a arquitetura atual e a migração para Clean Architecture, aplicada aos recursos Autor, Editora, ItemAcervo e Livro.
-
 ## Arquitetura Atual
 
-A arquitetura atual pode ser descrita por duas perguntas independentes, cada uma feita a partir de um ponto de vista diferente sobre o mesmo sistema.
+### Visão Externa
 
-A primeira pergunta é feita de fora do sistema, olhando para quantos artefatos existem e quantos bancos de dados são usados. Existem dois artefatos de deploy, `BibliotecaAPI` e `BibliotecaWeb`, mas os dois compartilham o mesmo código de regra de negócio (`Service`), a mesma camada de dados (`Core`) e o mesmo banco de dados. Não existe separação por módulos nem por bancos, então não se trata de SOA, microsserviços ou serverless.
+A visão externa do sistema permite a observação de dois artefatos de deploy, `BibliotecaAPI` e `BibliotecaWeb`, que compartilham o mesmo código de regra de negócio (`Service`), a mesma camada de dados (`Core`), e também existe o artefato do banco de dados que é compartilhado com os dois artefatos anteriores. Essas características encaixam o sistema como um monolito, pois toda a aplicação é disponibilizada a partir de um único artefato que acessa um único banco compartilhado.
 
-A segunda pergunta é feita de dentro do sistema, olhando para onde apontam as dependências entre as camadas. Para as quatro entidades migradas (Autor, Editora, Livro e ItemAcervo), a resposta é: Arquitetura Clean. O Controller chama um Use Case na camada Application, o Use Case depende apenas de uma porta (interface) declarada no Domain, e quem implementa essa porta usando Entity Framework é um adaptador na camada Infrastructure. As dependências apontam para dentro, em direção ao Domain, e não para fora, em direção ao banco de dados.
+### Visão Interna
 
-### Estilo Interno: Arquitetura em camadas clássica
+A visão interna do sistema permite enxerga como se relacionam as dependências dos componentes da aplicação. Atualmente, não existe uma separação clara de responsabilidade do ponto de vista dos componentes, pois, por exemplo, o `Core` conhece componentes externos do sistema (bancos de dados, por exemplo), o que é problemático pois ele se torna vulneráveis a mudanças nessas camadas externas.
 
-```
-BibliotecaWeb / BibliotecaAPI  (Controllers)
-        │
-        ▼
-     Service        (regras de negócio + acesso a dados)
-        │
-        ▼
-      Core           (Entidades, DTOs, BibliotecaContext - EF)
-        │
-        ▼
-      MySQL          (banco real, via connection string)
-```
+A relação dos componentes na arquitetura atual pode ser vista da seguinte forma: a Aplicação (Web ou API) conhece a `Service`, esse conhece o `Core` e esse, por sua vez, conhece detalhes externos ao sistema, que, nesse caso, é o banco de dados. Além disso, essses componentes também conversam entre si a partir das implementações concretas, o que torna mais custoso realizar mudanças no sistema (como trocar o banco de dados utilizado) uma vez que ele crescer.
 
-Esse padrão ainda está em uso no EditoraController, LivroController e ItemAcervoController da BibliotecaWeb. Controller chama Service, Service chama Core, e o Core já importa o Entity Framework diretamente. Vale destacar que apenas 4 entidades foram migradas para a arquitetura Clean. 
+## Arquitetura nova
 
-- Core: entidades (`Autor`, `Editora`, `Livro`, `Itemacervo`), DTOs, e o `BibliotecaContext` (Entity Framework) usado diretamente pelos serviços.
-- Service: implementações como `AutorService`, `EditoraService`, `ItemAcervoService`, `LivroService`, que acessam o `BibliotecaContext` diretamente.
-- Util: validações customizadas (CPF, CEP, telefone).
-- BibliotecaWeb / BibliotecaAPI: os controllers dependiam diretamente das interfaces de `Service` (ex.: `IAutorService`), que por sua vez dependiam do Entity Framework.
-- Banco de dados: MySQL real, configurado via `connection string` no `appsettings.json`.
+### Motivações da mudança
 
-## Arquitetura Escolhida: Clean Architecture
+Pensando em resolver esse problemática da relação entre os componentes, foi adotado uma arquitetura a qual forçasse uma regra de dependência dos componentes que sempre apontasse para dentro do domínio, para o domínio do negócio. Nesse sentido, foi optada pela clean architecture, pois além de garantir o ponto mencionado anteriormente, também promove uma separação clara do que é regra do domínio e a regra da aplicação, concretizado com os casos de uso sendo uma camada à parte do domínio, mas que depende do domínio.
 
-```
-BibliotecaWeb / BibliotecaAPI  (Controllers)
-        │
-        ▼
-   Application       (Use Cases: UseCaseCriarAutor, UseCaseEditarAutor...)
-        │
-        ▼
-     Domain          (Entidades: AutorEntity + Interfaces: IAutorRepository)
-        ▲
-        │  implementa
-        │
-  Infrastructure      (AutorRepository + Context - EF InMemory)
-```
+Essa escolha também visou a escrita de um código que incentivasse menos acoplamento e permitisse flexibilidade com a mudança de componentes (por exemplo, a mudança de um banco de dados para outro). Como bônus, isso torna mais fácil uma possível mudança da arquitetura monolítica do sistema para uma arquitetura de microsserviços.
 
-- Domain: entidades puras (`AutorEntity`, `EditoraEntity`, `ItemAcervoEntity`) e interfaces de repositório (`IAutorRepository`, `IEditoraRepository`, `IItemAcervoRepository`), sem nenhuma dependência de Entity Framework.
-- Application: Use Cases (um por operação de negócio), como `UseCaseCriarAutor`, `UseCaseEditarAutor`, `UseCaseExcluirAutor`, `UseCaseObterAutorPorId`, `UseCaseListarAutores`, `GetAutoresPageUseCase`. Dependem apenas das interfaces do `Domain`, nunca do EF diretamente.
-- Infrastructure: implementação concreta dos repositórios (`AutorRepository`) usando um novo `Context` (EF Core), além das implementações de `Editora` e `ItemAcervo`.
-- Banco de dados: passou a usar EF Core InMemory (`UseInMemoryDatabase`), tanto para o `Context` novo quanto para o `BibliotecaContext` antigo e o `IdentityContext`. Isso elimina a necessidade de configurar um MySQL real para rodar o projeto localmente.
+### Sobre a mudança
 
-## Por que migrar para Clean Architecture?
+#### O domínio
 
-- Desacoplamento: no código antigo, o `Service` conhecia o Entity Framework diretamente, então trocar de banco de dados exigiria alterar a camada de regra de negócio. No código novo, o `UseCaseCriarAutor` só conhece a interface `IAutorRepository`, sem saber (nem precisar saber) que existe um EF Core por trás.
-- Testabilidade: como o Use Case depende de uma interface (`IAutorRepository`) e não de um `DbContext` real, é possível testar a regra de negócio "criar um autor" simulando (mockando) o repositório, sem precisar de um banco de dados de verdade.
-- Separação de responsabilidades: `Domain` define o que o sistema faz (regras e contratos); `Application` orquestra os casos de uso; `Infrastructure` decide como os dados são persistidos, e cada camada pode evoluir de forma independente.
+Este é o coração da arquitetura. Nesta camada, não deve haver nenhuma dependência a qualquer elementos externo. Aqui, foram definidos as entidades do negócio (neste caso, `Livro`, `Autor`, `Editora` e `ItemAcervo`). Também seriam definidas as regras de negócio aqui, mas como o `core` do código da biblioteca não continha regras de negócio associada, essas entidades ficaram anêmicas.
 
-## Responsabilidades e Acoplamento
+Nessa parte mais central é criada as interfaces (portas) utilizadas para enviar informação a serviços externos (adaptador), que necesse caso foi uma porta para comunicação com banco de dados.
 
-### Responsabilidade Única (SRP)
+Assim, o domínio foi criado de modo a ser completamente desconhecido do que existe fora dele, desconhecido até mesmo de outros detalhesd a própria aplicação.
 
-### Por que Clean Architecture, e não Hexagonal ou Onion?
+#### A camada de casos de uso
 
-- **Clean vs. Onion**: Foi optado a arquitetura Clean porque ela representa uma separação mais explícita das responsabilidades, principalmente através da divisão entre entidades, casos de uso, adaptadores e infraestrutura. Isso facilita a organização do projeto, a realização de testes e a manutenção do sistema à medida que ele cresce. Portanto, a Clean foi escolhida por oferecer uma estrutura mais detalhada e adequada às necessidades de evolução e manutenção da aplicação.
-- 
-- **Clean vs. Hexagonal**: Embora a arquitetura Hexagonal também ofereça baixo acoplamento e independência em relação a tecnologias externas, optamos pela arquitetura clean porque o projeto necessita de uma estrutura mais explícita para separar as regras de negócio, os casos de uso, os adaptadores e a infraestrutura. A Clean facilita a visualização das responsabilidades de cada parte do sistema e oferece uma organização adequada para projetos que precisam crescer e ser mantidos por um longo período. Dessa forma, a escolha foi baseada na necessidade de uma estrutura arquitetural mais clara e detalhada.
+Nesta parte (localizada em `Application`) é onde se encontram as regras da aplicação, cuja correta execução depende do conhecimento do domínio (entidades e regras de negócio). Cada caso de único corresponde a uma única funcionalidade da aplicação, que antes estava agrupada em um único serviço.
 
-## Porta de Persistência e Adaptador
-
-Esse padrão de porta e adaptador se repete de forma idêntica nas quatro entidades migradas (Autor, Editora, ItemAcervo e Livro): para cada uma existe uma interface dentro do Domain e uma implementação correspondente na Infrastructure.
-
-```csharp
-// Domain/Autor/IAutorRepository.cs
-public interface IAutorRepository
-{
-    void Create(AutorEntity autor);
-    void Update(AutorEntity autor);
-    void Delete(uint id);
-    AutorEntity? GetById(uint id);
-    IEnumerable<AutorEntity> GetAll();
-    PagedResult<AutorEntity> GetPage(PageRequest request);
-}
-```
-
-O AutorRepository, na camada Infrastructure, é o adaptador: a implementação concreta dessa porta usando Entity Framework Core, mantida fora do domínio.
-
-As outras três entidades seguem exatamente essa mesma estrutura, cada uma com sua própria porta e seu próprio adaptador:
-
-IEditoraRepository (Domain/Editora) implementada por EditoraRepository (Infrastructure/Editora).
-ILivroRepository (Domain/Livro) implementada por LivroRepository (Infrastructure/Livro).
-IItemAcervoRepository (Domain/ItemAcervo) implementada por ItemAcervoRepository (Infrastructure/ItemAcervo).
-
-Em nenhum desses casos a camada Application (os Use Cases) referencia diretamente o Entity Framework: todas dependem apenas da porta correspondente do Domain.
-
-## Responsabilidades e Acoplamento
-
-### Responsabilidade Única (SRP)
-
-Os dois princípios abaixo se repetem nas quatro entidades migradas, embora com evidências mais claras em algumas classes do que em outras.
-
-Responsabilidade Única (SRP)
-
-Os Services antigos concentram numa única classe a validação de regra de negócio, todas as operações de CRUD e, em alguns casos, lógica extra de ordenação.
-
-Na Clean Architecture, cada operação de cada entidade foi separada em sua própria classe de Use Case: CreateAutorUseCase, UseCaseCriarLivro, UseCaseCriarEditora, CreateItemAcervoUseCase, e assim por diante para as demais operações (Update, Delete, GetById...). O CreateAutorUseCase, por exemplo, faz apenas uma coisa: valida os dados do autor e delega a criação à porta de persistência.
-
-### Inversão de Dependência (DIP)
-
-No código antigo, o `AutorService` depende diretamente de uma classe concreta do Entity Framework. O mesmo padrão se repete em LivroService, EditoraService e ItemAcervoService: todos recebem o BibliotecaContext diretamente no construtor. Nos Use Cases novos, a dependência é sempre com a porta correspondente do Domain, nunca com o Entity Framework
+Além da separação das funcionalidades, esses casos de uso não têm conhecimento sobre como se comunicará com coisas externas (como banco de dados), mas eles sabem que existirá uma porta (a interface definida no domínio) para realizar a comunicação, então essa porta é utilizada para efetivar a comunicação. Aqui também foi definido um contrato de comunicação com camadas externas (DTOs) para que o caso de uso não vaze elementos do domínio que carregam, além de dados, as regras de negócio (embora o domínio seja anêmico por motivos mencionados anteriormente).
 
 
-Quem implementa essa porta usando Entity Framework é o adaptador `AutorRepository`, na camada `Infrastructure`. O Use Case não sabe (nem precisa saber) que existe um EF Core por trás.
+#### A camada de adaptadores
 
-Isso é confirmado também pelas referências de projeto (`.csproj`): o Domain não referencia nenhum outro projeto, nem o Entity Framework, nem nada. Ele é o centro da arquitetura; `Application` e `Infrastructure` dependem dele, nunca o contrário. Essa é a regra de dependência da Clean Architecture: as dependências sempre apontam para dentro, em direção às regras de negócio, nunca para os detalhes técnicos.
+Este (localizado tanto em `BibliotecaWeb` e `BibiotecaAPI`) é o ponto de entrada para a aplicação, pois aqui se encontra os controllers do sistema. Devido a regra de dependência forçar um apontamento para dentro do domínio, os adaptadores conhecem os casos de uso e o domínio, mas não o contrário. Isso é interessante pois possibilita que diferentes adaptadores, como nesse caso que temos a `BibiliotecaAPI` (retorna só dados) e a `BibliotecaWeb` (renderiza páginas HTML), utilizem a mesma implementação de domínio e casos de uso, pois esses são completamente desconhecidos do que existe fora. Essa camada acaba sendo a fronteira que controla o acesso ao mundo do domínio.
 
-## Estrutura de pastas
+#### A camada de frameworks
 
-```
-Codigo/Biblioteca/
-├── BibliotecaWeb/          
-├── BibliotecaAPI/          
-├── Core/                   
-├── Service/                
-├── Util/                   
-├── Domain/                 
-├── Application/            
-├── Infrastructure/         
-├── BibliotecaWebTests/     
-└── ServiceTests/           
-```
-
-## Testes
-
-```bash
-dotnet test BibliotecaWebTests
-dotnet test ServiceTests
-```
-
-## Autores
-
-- Daiane Santos (daianesnts)
-- Guilherme Seixas (guilheeme1108-prog)
-- Hiakewve Santos (Hiakewve)
-- Igor Lemos (igorlemos01)
-- Larissa Lavínia (larissa-lavinia)
-- Paulo Ítalo (Pauloisc)
-- Pedro Henrique (pedrohsmesquita)
-
-Trabalho desenvolvido para a disciplina de Tópicos Especiais de Engenharia de Software, sob orientação do professor Éricles dos Santos.
-
-## Licença
-
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.
+É a camada mais externa (localizada em `Infrastructure`, mas também em `BibliotecaWeb` e `BibliotecaAPI` devido ao ASP.NET) e que de fato tem conhecimento sobre banco de dados e frameworks web. Apesar de ser a camada mais externa, neste ponto fica evidente que há nuances quanto a separação e mapeamento das camadas da Clean Architecture às pastas do projeto. Em suma, aqui é onde detalhes concretos são implementados, então o banco e o seu adaptador foram definidos aqui.
